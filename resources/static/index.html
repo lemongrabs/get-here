@@ -1,0 +1,218 @@
+<!DOCTYPE html>
+<!--
+                                       ++++       +++
+                                       ++++++   ++++++
+                           +     ++    +++++++  ++
+        :+++++      ++~   +++   +++   .++  +++  ++
+      ++++++++++    ++:   ++=   +++~  ~++  =++  ++
+    +++++++++++++   ++    ++~  :++++  +++  +++ :+++++
+   ++++++~ :+++++  .++    ++.  +++++  +++++++  =+++++       .
+  =++++=    +++++  ~++   ~++   ++=++  ++++++   +++        +++++
+  +++++     +++++  =++++++++  +++,++  ++= +++  ++=       +++ ++
+  +++++      ++    +++++++++  ++++++  ++: =++  +++++++  :++  +~
+  ++++++           +++   +++ =++++++~ ++   +++ ++++++   ++= ++
+  ++++++++         +++   +++ +++  +++ ++   ,+       =  +++  +=
+   ++++++++++      +++   +++ ++~  ++             .+++= ++  ++
+     ++++++++++    +++   ++  +          +++  =+++ =++ +++ ++
+       .++++++++   ++            +++~  =+++  +++  ++~ ++=+
+          +++++++      =+++=     +++   +++  +++  +++ +++     +
+           .+++++    ~++:  +++  +++=  :++= ~++:   =, +++    =
+            +++++   +++   =+++  +++   +++  +++       +++  +
+ ++++=      +++++  +++    +++  +++   +++=  ++=       ++++
+=+++++     =++++  ++++   ++++  +++  =+++  +++
+=+++++    +++++~ ~+++   ~+++, =+++  ++++~++++
+,+++++++++++++=  ++++   ++++ +++++++ +++
+ ++++++++++++    +++   ++++++ ~+++
+  ~+++++++,      +++++:~+++
+                 ++++ :+++
+                    +++++=
+                  ++~ +++
+                ++~  +++
+               ++   +++
+              ++   ++=
+               ++++
+-->
+    <head>
+        <meta charset="utf-8">
+        <meta http-equiv="X-UA-Compatible" content="IE=edge,chrome=1">
+        <meta name="viewport" content="width=device-width">
+
+        <title>ShareGurl: Getting to Fire Island</title>
+
+        <!-- put favicon shit here -->
+
+        <meta name="title" content="Sharegurl: Getting to Fire Island">
+        <meta name="description" content="Let us help you figure out how to get to Fire Island this summer!">
+
+        <meta property="og:url" content="" /> <!-- make sure to populate this -->
+        <meta property="og:title" content="Sharegurl: Getting to Fire Island" />
+        <meta property="og:description" content="Let us help you figure out how to get to Fire Island this summer!" />
+        <meta property="og:image" content="" /> <!-- make sure to populate this -->
+
+        <meta name="twitter:card" value="summary" />
+        <meta name="twitter:site" value="@sharegurl" />
+        <meta property="twitter:url" content="" />  <!-- make sure to populate this -->
+        <meta property="twitter:title" content="Sharegurl: Getting to Fire Island" />
+        <meta property="twitter:description" content="Let us help you figure out how to get to Fire Island this summer!" />
+
+
+        <!-- remember to change included file protocols to '//' when live -->
+        <!-- would love to concat & minify using grunt to minimize http requests-->
+        <link rel="stylesheet" type="text/css" href="http://maxcdn.bootstrapcdn.com/bootstrap/3.1.1/css/bootstrap.min.css" />
+        <link rel="stylesheet" type="text/css" href="vendor/datepicker/css/datepicker.css" />
+        <link rel="stylesheet" type="text/css" href="vendor/timepicker/css/timepicker.css" />
+        <link rel="stylesheet" type="text/css" href="css/styles.css" />
+
+    </head>
+    <body>
+
+        <header>
+            <div class="wrapper">
+                <a id="home" href="http://sharegurl.com">ShareGurl</a>
+                <h1>Getting to Fire Island</h1>
+            </div>
+        </header><!-- end header -->
+
+        <section id="intro">
+            <h2>Welcome to your journey to Fire Island Pines.</h2>
+            <p>The trip is famously challenging, but we’ll get through it together. Remember the two most important rules:
+                <ul>
+                    <li>If people look gay, you should probably follow them.</li>
+                    <li>It might seem like everyone knows what they're doing, but everyone had to learn at some point. Don’t be afraid to ask.</li>
+                </ul>
+            </p>
+            <p>And if you don't feel like taking the train, Sharegurl's got you covered: this summer, enjoy our new dedicated bus service that will take you directly from Manhattan to the ferry.  <a href="http://new.sharegurl.com/stores/sharegurl-shuttle/about">More info &raquo;</a></p>
+        </section><!-- end #intro -->
+
+        <section id="departure">
+            <h2>When can you get to Penn Station?</h2>
+            <a class="help" id="penn-station">More info</a>
+
+            <div class="more-info penn-station">
+                <p>Penn Station is located in Manhattan between 7th and 8th Avenues and 31st and 33rd Streets (you can't miss it). To get there via subway, take the <span class="subway red">1 2 3</span> to 34th Street - Penn Station (7th Ave.), or the <span class="subway blue">A C E</span> to 34th Street - Penn Station (8th Ave.).</p>
+            </div>
+
+            <div class="content">
+                <div class="input departure-date">
+                    <input type="text" id="departure-date" class="datetime-input" maxlength="10" />
+                </div>
+                <div class="input departure-time">
+                    <input type="text" id="departure-time" class="datetime-input" />
+                </div>
+            </div>
+
+            <button id="get-itineraries"><span>Next!</span></button>
+
+            <div id="error" class="hidden">
+               <p><strong>Oops! It looks like there aren't any routes that worked for the date and time that you selected</strong> - you probably can't make it to the last ferry of the day if you take the train! Try selecting a different departure date and time.</p>
+            </div>
+
+        </section><!-- end #departure -->
+
+        <section id="itinerary-directions" class="hidden">
+            <h2>Your itinerary &amp; directions</h2>
+            <a class="help" id="directions-details">Detailed view</a>
+
+            <table>
+                <thead>
+                    <tr>
+                        <td>Depart Penn</td>
+                        <td>Arrive F.I.P.</td>
+                        <td>Travel time</td>
+                        <td>Cost</td>
+                    </tr>
+                </thead>
+                <tbody>
+                    <!-- ITINERARY GOES HERE -->
+                </tbody>
+            </table>
+
+            <ol>
+                <!-- DIRECTIONS GO HERE -->
+            </ol>
+
+            <div id="shuttle">
+                <p>Don&rsquo;t feel like taking the train, or think this is seeming a little too complicated? As an alternative, you can hop on the new <strong>ShareGurl Shuttle</strong> and get a ride from Manhattan directly to the ferry! <a href="http://new.sharegurl.com/stores/sharegurl-shuttle/about">More info &raquo;</a></p>
+            </div>
+
+        </section><!-- end #itinerary-directions -->
+
+        <section id="sharegurl" class="hidden">
+           <h2>Have fun!</h2>
+           <p>And don't forget - whether you’re a Fire Island virgin or veteran, more friends on the island means more fun for you. <a href="http://sharegurl.com">ShareGurl</a> is the only place where you can find out when your friends are going to Fire Island and share your plans too. Come play with us this summer!</p>
+           <p align="center"><a href="https://itunes.apple.com/us/app/sharegurl-fire-island-friends/id646752256?mt=8"><img src="images/appstore.png" alt="Download on the App Store"></a></p>
+        </section><!-- end #sharegurl -->
+
+        <footer>
+            This site brought to you with love by <a href="http://twitter.com/zaneshelby">Zane Shelby</a> &amp; <a href="http://twitter.com/oldwestaction">Anh-Thu Huynh</a> for <a href="http://sharegurl.com" class="home">ShareGurl</a>
+        </footer><!-- end footer -->
+
+
+        <!-- underscore templates -->
+        <script type="text/template" class="itinerary-template">
+            <tr>
+                <td><%= parseTime(summary.departure.hour, summary.departure.minute) %></td>
+                <td><%= parseTime(summary.arrival.hour, summary.arrival.minute) %></td>
+                <td><%= parseDuration(summary.duration.hours, summary.duration.minutes) %></td>
+                <td><% if (route[0].peak) { %>$25-31<% } else { %>$23-26<% } %></td>
+            </tr>
+        </script>
+
+        <script type="text/template" class="directions-template">
+        <li>
+            <p><strong>Arrive at <%= route[0].origin %></strong> in time to catch the <strong><%= parseTime(route[0].departure.hour, route[0].departure.minute) %> train</strong> to <strong>Sayville</strong>. You&rsquo;ll need to buy <% if (route[0].peak) { %>a "peak"<% } else { %>an "off-peak"<% } %> ticket. <a class="expand"><span>&raquo;</span></a></p>
+            <div class="more-info">
+                <p>You’re looking for the Long Island Railroad section of Penn Station. This is on the lower level, below the area for Amtrak and NJ Transit. To figure out which track you need, look on the departure boards and find your train’s departure time.</p>
+                <p>Note: when you’re riding LIRR each train is uniquely identified by its departure time. It’s the best way to know you’re on the right train!</p>
+                <p>To buy a ticket, look for a ticket vending machine. They accept cash, debit or credit (though if you pay in cash expect to get your change in $1 coins). Tickets range from $13-$18 one way and $19-$24 round trip depending on whether your train is a "peak" or "off-peak" train. If you’re running late, you can purchase a ticket on the train with cash, but there is an approximately $5 surcharge.</p>
+            </div>
+        </li>
+        <li>
+            <p><strong>Transfer at <%= route[1].origin %></strong> to the <strong><%= parseTime(route[1].departure.hour, route[1].departure.minute) %> train</strong>. You should have about <%= timeBetween(route[0].arrival.hour, route[0].arrival.minute, route[1].departure.hour, route[1].departure.minute ) %> to make this transfer.  <a class="expand"><span>&raquo;</span></a></p>
+            <div class="more-info">
+                <p>Often the train you’re transferring to is directly across the track and already in the station, so you’ll need to transfer quickly.  Look at the black and yellow signs above each track to find your train, and remember: each train is uniquely identified by its departure time. It’s the best way to know you’re on the right train!</p>
+                <p>If you miss your connection, or have some time to kill, there’s a food court just above in the AirTrain connection area. Grab a coffee or sandwich and contemplate the debauchery that is about to ensue.</p>
+                <p>Once you&rsquo;re on the train, sit back and relax - the train ride is about an hour from here to Sayville.</p>
+                <p>The conductor might announce “transfer here for Fire Island ferries” at Bay Shore, but he’s just trying to trick you! Those ferries will take you to a different, far less gay Fire Island experience.</p>
+                <p>Listen for the announcement that the train is arriving at Oakdale, so you can start pulling your things together. Sayville will be the next stop.</p>
+            </div>
+        </li>
+        <li class="no-action">
+            <p><strong>Sit back and relax</strong> - you&rsquo;ll arrive in Sayville at <%= parseTime(route[1].arrival.hour, route[1].arrival.minute) %>.</p>
+        </li>
+        <li>
+            <p><strong>Board the shuttle to the ferry</strong> - make sure to have $5 cash on hand!  <a class="expand"><span>&raquo;</span></a></p>
+            <div class="more-info">
+                <p>You&rsquo;re looking for a shuttle bus operated by Colonial Taxi (if you’re arriving during a slow period it may just be a taxi cab).</p>
+                <p><strong>VERY IMPORTANT: Have $5 cash ready to hand the driver for this trip.</strong> And while the drivers will accept larger bills, they may give you a little sass for it.</p>
+                <p>During peak travel time (for example, Friday afternoons) there can be multiple shuttles, but they’re almost certainly all headed to the same place. Also, during peak times there may be some competition for shuttles. Keep it cordial, but it’s better to be on one of the first shuttles. Although the trains, shuttles and ferries are timed together carefully, it is sometimes a tight transfer and the ferries will not wait for a late shuttle bus.</p>
+            </div>
+        </li>
+        <li>
+            <p><strong>Arrive at the ferry terminal</strong> and catch the <strong><%= parseTime(route[3].departure.hour, route[3].departure.minute) %> ferry</strong> to <strong>The Pines</strong>. <a class="expand"><span>&raquo;</span></a></p>
+            <div class="more-info">
+                <p>Ferries for The Pines and Cherry Grove leave from two adjacent but separate terminals. You want to line up on <strong>the terminal to your right</strong>.</p>
+                <p>Note: There are some occasions where one ferry will depart Sayville and serve both destinations, stopping in Cherry Grove first. If there is literally no one at the Pines terminal, you probably want to check on the Cherry Grove side. Once you’re in line, it’s common practice to drop your bags in line to hold your spot and then wander around the terminal.  Keep an eye on your bags, but no one is going to hassle you about cutting the line. The ferry is over capacity only a few days each year (for example, July 4th) so don’t fret too much. The line is less a competition and more about gays being tidy.</p>
+                <p>You can buy your ticket in cash as you pass the ticket booth to board. But if there’s someone in the ticket booth before boarding begins, you can also go up to them ahead of time and purchase tickets. The price per ticket is $8 for an adult. If you need an ATM, there is one inside the bar on the Cherry Grove side of the terminal. They also accept credit cards in the Ferry Service Office, which is also on the Cherry Grove side.</p>
+            </div>
+        </li>
+        <li>
+            <p>You&rsquo;ll <strong>arrive in The Pines</strong> at about <strong><%= parseTime(route[3].arrival.hour, route[3].arrival.minute) %></strong>. <a class="expand"><span>&raquo;</span></a></p>
+            <div class="more-info">
+                <p>Most map services (e.g. Google and Apple) don’t do a good job locating addresses in Fire Island.<!-- But here’s a good map to consult [NEED LINK FROM RAF/NATE]. --></p>
+                <p>Pro tip: Addresses work a little differently in Fire Island. Each house has a unique number. For example, 6 Ocean.</p>
+            </div>
+        </li>
+        </script>
+
+
+        <!-- would love to concat & minify using grunt to minimize http requests -->
+        <script src="http://ajax.googleapis.com/ajax/libs/jquery/1.11.1/jquery.min.js"></script>
+        <script src="http://cdnjs.cloudflare.com/ajax/libs/underscore.js/1.6.0/underscore-min.js"></script>
+        <script src="http://maxcdn.bootstrapcdn.com/bootstrap/3.1.1/js/bootstrap.min.js"></script>
+        <script src="vendor/datepicker/js/bootstrap-datepicker.js"></script>
+        <script src="vendor/timepicker/js/bootstrap-timepicker.js"></script>
+        <script src="js/script.js"></script>
+
+    </body>
+</html>
