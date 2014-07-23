@@ -16,4 +16,4 @@
 
   :min-lein-version "2.0.0"
   :jar-name "get-here.jar"
-  :uberjar-name "get-standalone-here.jar")
+  :uberjar-name "get-here-standalone.jar")
