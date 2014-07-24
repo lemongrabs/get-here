@@ -141,6 +141,8 @@ var helpers = {
 
         if (minute === 0) {
             parsedMinute = '00';
+        } else if (minute < 10) {
+            parsedMinute = '0' + minute;
         } else {
             parsedMinute = minute.toString();
         }
