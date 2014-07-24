@@ -2,6 +2,9 @@
 A little something we made for our friends at [Sharegurl](http://sharegurl.com).
 
 ### Backend to-do list
+* Perf
+* Perf
+* Perf
 
 ### Frontend to-do list
 * Implement using [React](http://facebook.github.io/react/)
