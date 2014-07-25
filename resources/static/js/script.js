@@ -244,10 +244,8 @@ $('#get-itineraries').on('click', function(){
     var year = departure_date[2];
     var month = departure_date[0];
     var day = departure_date[1];
-    var hour = (departure_time[2] === 'AM') ? departure_time[0] : 12 + (parseInt(departure_time[0], 10) + 12) % 12;
+    var hour = (departure_time[2] === 'AM') ? departure_time[0] % 12 : 12 + (parseInt(departure_time[0], 10) + 12) % 12;
     var minute = departure_time[1];
-
-    console.log(year, month, day, hour, minute);
 
     // reset loading/error states
     $('#get-itineraries').addClass('loading');
