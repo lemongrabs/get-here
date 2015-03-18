@@ -84,19 +84,19 @@ $('#departure-date').val(dateString); // m/d/yyyy
 $('#departure-date').datepicker({
     'format': 'm/d/yyyy',
     onRender: function(date){
-        if ( date.valueOf() < summerStartDate.valueOf() || date.valueOf() > summerEndDate.valueOf() ) {
-            return 'disabled';
-        }
+        // if ( date.valueOf() < summerStartDate.valueOf() || date.valueOf() > summerEndDate.valueOf() ) {
+        //     return 'disabled';
+        // }
     }
 }).on('updateView', function(e){
-    $('.datepicker table').removeClass('lower-limit upper-limit');
-    if (e.month === 201406) {
-        $('.datepicker table').addClass('lower-limit');
-    } else if (e.month === 201409) {
-        $('.datepicker table').addClass('upper-limit');
-    } else if (e.month < 201406 || e.month > 201409) {
-        $('.datepicker table').addClass('lower-limit upper-limit');
-    }
+    // $('.datepicker table').removeClass('lower-limit upper-limit');
+    // if (e.month === 201406) {
+    //     $('.datepicker table').addClass('lower-limit');
+    // } else if (e.month === 201409) {
+    //     $('.datepicker table').addClass('upper-limit');
+    // } else if (e.month < 201406 || e.month > 201409) {
+    //     $('.datepicker table').addClass('lower-limit upper-limit');
+    // }
 });
 
 // suppress month/year-level views
