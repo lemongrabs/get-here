@@ -252,37 +252,54 @@ $('#get-itineraries').on('click', function(){
     $('#itinerary-directions, #sharegurl').addClass('hidden');
     $('#error').addClass('hidden');
 
+  //
+  $.ajax({"url": "/directions",
+          "type": "GET",
+          "data": {"year": year,
+                   "month": month,
+                   "day": day,
+                   "hour": hour,
+                   "minute": minute},
+          "headers": {"accept": "application/transit+json"},
+          "complete": function(res) {
+            console.log("repsonse: ", res);
+            window.response = res;
+            //var parsed = window.transit.reader("json").read(res.responseText);
+            //window.parsed = parsed;
+            //console.log("parsed: ", parsed);
+          }});
     // submit request
-    $.get("/directions",
-        {"year":  year,
-         "month": month,
-         "day":   day,
-         "hour":  hour,
-         "minute": minute})
-    .done(function(response){
-        var routeData = response;
+    // $.get("/directions",
+    //     {"year":  year,
+    //      "month": month,
+    //      "day":   day,
+    //      "hour":  hour,
+    //      "minute": minute})
+    // .done(function(response){
+    //     var routeData = response;
 
-        _.extend(routeData, helpers);
+    //     _.extend(routeData, helpers);
 
-        var itinerary = _.template( $('script.itinerary-template').html() );
-        var directions = _.template( $('script.directions-template').html() );
+    //     var itinerary = _.template( $('script.itinerary-template').html() );
+    //     var directions = _.template( $('script.directions-template').html() );
 
-        // populate itinerary & directions
-        $('#itinerary-directions tbody').html( itinerary(routeData) );
-        $('#itinerary-directions ol').html( directions(routeData) );
+    //     // populate itinerary & directions
+    //     $('#itinerary-directions tbody').html( itinerary(routeData) );
+    //     $('#itinerary-directions ol').html( directions(routeData) );
 
-        // setup tooltips
-        routeData.setupItineraryTooltips();
+    //     // setup tooltips
+    //     routeData.setupItineraryTooltips();
 
-        // scroll page to content & remove loading state
-        var scrollTop = $('#itinerary-directions').offset().top - 30;
-        $('#itinerary-directions, #sharegurl').removeClass('hidden');
-        $('body').animate({ scrollTop: scrollTop} );
-        $('#get-itineraries').removeClass('loading');
+    //     // scroll page to content & remove loading state
+    //     var scrollTop = $('#itinerary-directions').offset().top - 30;
+    //     $('#itinerary-directions, #sharegurl').removeClass('hidden');
+    //     $('body').animate({ scrollTop: scrollTop} );
+    //     $('#get-itineraries').removeClass('loading');
 
-    }).fail(function(response){
-        $('#get-itineraries').removeClass('loading');
-        $('#error').removeClass('hidden');
-    });
+    // }).fail(function(response){
+    //     $('#get-itineraries').removeClass('loading');
+    //     $('#error').removeClass('hidden');
+    // })
+  ;
 
 });

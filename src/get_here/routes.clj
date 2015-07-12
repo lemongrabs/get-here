@@ -2,13 +2,17 @@
   (:require [clj-time.core :as t]
             [clj-time.coerce :as c]
             [clj-time.format :as f]
+            [clojure.core.memoize :as memoize]
+            [clojure.core.reducers :as r]
             [clojure.data.csv :as csv]
+            [clojure.edn :as edn]
             [clojure.java.io :as io]
             [clojure.string :as string]
             [get-here.ferry :as ferry]
             [loom.alg :as a]
             [loom.graph :as g])
-  (:import (org.joda.time LocalTime)))
+  (:import (org.joda.time LocalTime)
+           (java.io PushbackReader)))
 
 (defn keywordize
   [s]
@@ -173,3 +177,31 @@
                           (update-in [:departure] to-simple-date)
                           (update-in [:arrival] to-simple-date)))
                     route)})))
+
+
+(defn setup-memoization
+  []
+  (doseq [f [#'best-path
+             #'trips-between]]
+    (alter-var-root f #(memoize/lru % :lru/threshold 100))))
+
+(defn write-cache
+  [filename]
+  (spit filename
+        (prn-str
+         (r/foldcat
+          (r/map
+           (fn [dt] [(.toDate dt) (best-path dt)])
+           (take-while
+            #(t/before? % (t/from-time-zone (t/date-time 2014 9 8) eastern))
+            (iterate #(t/plus % (t/minutes 15))
+                     (t/from-time-zone (t/date-time 2014 7 24) eastern))))))))
+
+(defn read-cache
+  [filename]
+  (with-open [r (PushbackReader. (io/reader filename))]
+    (binding [*read-eval* false]
+      (->> (read r)
+           (map (fn [[date route]]
+                  [(c/from-date date) route]))
+           (into {})))))
