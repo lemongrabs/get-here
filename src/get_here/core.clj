@@ -3,10 +3,9 @@
             [clojure.core.memoize :as memo]
             [compojure.core :refer [GET POST defroutes]]
             [ring.adapter.jetty :as jetty]
-            [ring.middleware.file-info :as file-info]
+            [ring.middleware.file-info :refer [wrap-file-info]]
             [ring.middleware.format-params :refer [wrap-restful-params]]
             [ring.middleware.format-response :refer [wrap-restful-response]]
-            [ring.middleware.keyword-params :as keyword-params]
             [ring.middleware.params :as params]
             [ring.middleware.reload :as reload]
             [ring.middleware.resource :as resource]
@@ -56,14 +55,16 @@
 
 (def nyc-terminal? (partial contains? #{"Penn Station"}))
 
-(defn peak?
-  [step]
-  {:pre [(transit-step? step)]}
-  #_
-  (or (and (nyc-terminal? departure-stop)
-           (<= 6 arrival-hour 10))
-      (and (nyc-terminal? arrival-stop)
-           (<= 16 departure-hour 20))))
+(defn peak? [{:keys [origin destination departure arrival] :as directions}]
+  {:pre [(instance? Date departure)
+         (instance? Date arrival)]}
+  (let [ny (ZoneId/of "America/New_York")
+        departure-instant (ZonedDateTime/ofInstant (.toInstant departure) ny)
+        arrival-instant (ZonedDateTime/ofInstant (.toInstant arrival) ny)]
+    (or (and (nyc-terminal? origin)
+             (<= 6 (.getHour departure-instant) 10))
+        (and (nyc-terminal? arrival)
+             (<= (.getHour arrival-instant) 20)))))
 
 (defn reformat-directions [body]
   (let [directions (get-in body [:routes 0 :legs 0])]
@@ -82,9 +83,9 @@
                   :towards     (get-in step [:transit_details :headsign])
                   :route       (get-in step [:transit_details :line :name])
                   :departure   (epoch-seconds->date (get-in step [:transit_details :departure_time :value]))
-                  :arrival     (epoch-seconds->date (get-in step [:transit_details :arrival_time :value]))
-                  ;; :peak        (peak? step)
-                  })))}))
+                  :arrival     (epoch-seconds->date (get-in step [:transit_details :arrival_time :value]))}))
+          (map (fn [step]
+                 (assoc step :peak (peak? step)))))}))
 
 #_ ;; example response
 {:summary
@@ -152,10 +153,9 @@
   (-> routes
       (wrap-restful-params)
       (wrap-restful-response)
-      #_(keyword-params/wrap-keyword-params)
       (params/wrap-params)
       (resource/wrap-resource "static")
-      (file-info/wrap-file-info)))
+      (wrap-file-info)))
 
 #_(defn -main
   [port]
