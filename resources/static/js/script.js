@@ -4,6 +4,7 @@ var App = React.createClass({
   getInitialState: function() {
     return {
       returnedRoute: false,
+      requestFailed: false,
       parsedData: null
     };
   },
@@ -15,14 +16,25 @@ var App = React.createClass({
     });
   },
 
+  requestErrored: function() {
+    this.setState({
+      returnedRoute: false,
+      requestFailed: true
+    });
+  },
+
   render: function() {
     if (this.state.returnedRoute) {
       return (
         <div>
           <Header />
           <Intro />
-          <FerryPicker onRouteReturn={this.returnedRoute} />
-          <Route parsedData={this.state.parsedData} />
+          <FerryPicker
+            onRouteReturn={this.returnedRoute}
+            onRequestError={this.requestErrored}
+            requestFailed={this.state.requestFailed} />
+          <Route
+            parsedData={this.state.parsedData} />
           <Extra />
           <Footer />
         </div>
@@ -32,7 +44,10 @@ var App = React.createClass({
         <div>
           <Header />
           <Intro />
-          <FerryPicker onRouteReturn={this.returnedRoute} />
+          <FerryPicker
+            onRouteReturn={this.returnedRoute}
+            onRequestError={this.requestErrored}
+            requestFailed={this.state.requestFailed} />
           <Footer />
         </div>
       )
@@ -170,9 +185,9 @@ var FerryPicker = React.createClass({
             'data': window.transit.writer('json').write(data),
             'headers':
               {'accept': 'application/transit+json'},
-               'complete': this.onSuccess
+               'complete': this.onSuccess,
+               'error': this.props.onRequestError
           });
-
   },
 
   onSuccess: function(response) {
@@ -199,13 +214,26 @@ var FerryPicker = React.createClass({
           </div>
         </div>
         <button id="get-itineraries" className={buttonClassString} onClick={this.onSubmit}><span>Next!</span></button>
+        <ErrorMessaging requestFailed={this.props.requestFailed} />
       </section>
     )
   }
 });
 
+var ErrorMessaging = React.createClass({
+  render: function() {
+    if (this.props.requestFailed) {
+      return <div id="error"><p><strong>Oops! Something went wrong on our end.</strong> Try looking up your desired ferry time again.</p></div>
+    } else {
+      return <div></div>;
+    }
+  }
+});
+
 var Route = React.createClass({
   render: function() {
+
+    console.log(this.props.parsedData.get(transit.keyword('route'))[0].get(transit.keyword('origin')));
 
     // some sample copy below. each step in the <ol> also has a 'more information' panel that needs to be added
 
