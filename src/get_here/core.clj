@@ -84,7 +84,7 @@
                   :route       (get-in step [:transit_details :line :name])
                   :departure   (epoch-seconds->date (get-in step [:transit_details :departure_time :value]))
                   :arrival     (epoch-seconds->date (get-in step [:transit_details :arrival_time :value]))}))
-          (map (fn [step]
+          (mapv (fn [step]
                  (assoc step :peak (peak? step)))))}))
 
 #_ ;; example response
