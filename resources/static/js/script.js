@@ -177,7 +177,7 @@ var FerryPicker = React.createClass({
 
     var dateTimeInputString = $('#departure-date').val() + ' ' + $('#departure-time').val();
     var data = transit.map([transit.keyword('arrive-by'),
-               moment(dateTimeInputString, 'M/D/YYYY h:mm:ss a').toDate()]);
+               moment(dateTimeInputString, 'M/D/YYYY h:mm a').toDate()]);
 
     $.ajax({'url': '/directions',
             'type': 'POST',
@@ -199,7 +199,7 @@ var FerryPicker = React.createClass({
 
   render: function() {
     var defaultDate = moment().format('M/D/YYYY');
-    var defaultTime = moment().format('h:mm:ss a');
+    var defaultTime = moment().format('h:mm a');
     var buttonClassString = this.state.waiting ? 'loading' : '';
 
     return (
@@ -232,47 +232,74 @@ var ErrorMessaging = React.createClass({
 
 var Route = React.createClass({
   render: function() {
-
-    console.log(this.props.parsedData.get(transit.keyword('route'))[0].get(transit.keyword('origin')));
-
-    // some sample copy below. each step in the <ol> also has a 'more information' panel that needs to be added
-
     return (
       <section id="itinerary-directions">
         <h2>Your itinerary &amp; directions</h2>
-
-        <table>
-          <thead>
-            <tr>
-              <td>Depart Penn</td>
-              <td>Arrive F.I.P.</td>
-              <td>Travel time</td>
-              <td>Cost</td>
-            </tr>
-          </thead>
-          <tbody>
-            <tr>
-              <td>7:49 am</td>
-              <td>9:50 am</td>
-              <td>2h 1m</td>
-              <td>???</td>
-            </tr>
-          </tbody>
-        </table>
-
-        <ol>
-          <li><p>Start at Penn Station.</p></li>
-          <li><p>DEPARTURE[0]: Take the ROUTE[0]-bound train to DESTINATION[0]. (You&rsquo;ll need to buy a PEAK/OFFPEAK ticket.)</p></li>
-          <li><p>ARRIVAL[0]: Get off at ORIGIN[1] (DEPARTURE[1]-ARRIVAL[0] mins to make connection).</p></li>
-          <li><p>DEPARTURE[1]: Transfer to the train to DESTINATION (on the ROUTE-bound line).</p></li>
-          <li><p>ARRIVAL[1]: Arrive at Sayville (FERRYTIME-ARRIVAL[1] mins to make connection to the ferry).</p></li>
-          <li><p>FINAL ARRIVAL TIME: Arrive in the Pines!</p></li>
-        </ol>
-
+        <Itinerary parsedData={this.props.parsedData} />
+        <Directions parsedData={this.props.parsedData} />
         <div id="shuttle">
           <p>Don&rsquo;t feel like taking the train, or think this is seeming a little too complicated? As an alternative, you can hop on the new <strong>ShareGurl Shuttle</strong> and get a ride from Manhattan directly to the ferry! <a href="http://new.sharegurl.com/stores/sharegurl-shuttle/about">More info &raquo;</a></p>
         </div>
       </section>
+    )
+  }
+});
+
+var Itinerary = React.createClass({
+  render: function() {
+    var departureTimeString = moment(this.props.parsedData.get(transit.keyword('summary')).get(transit.keyword('departure'))).format('h:mm a');
+    var arrivalTimeString = moment(this.props.parsedData.get(transit.keyword('summary')).get(transit.keyword('arrival'))).format('h:mm a');
+
+    var durationString = '';
+    if (this.props.parsedData.get(transit.keyword('summary')).get(transit.keyword('duration')).get(transit.keyword('hours')) > 0) {
+      durationString += this.props.parsedData.get(transit.keyword('summary')).get(transit.keyword('duration')).get(transit.keyword('hours')) + 'h '
+    }
+    if (this.props.parsedData.get(transit.keyword('summary')).get(transit.keyword('duration')).get(transit.keyword('minutes')) > 0) {
+      durationString += this.props.parsedData.get(transit.keyword('summary')).get(transit.keyword('duration')).get(transit.keyword('minutes')) + 'm'
+    }
+
+    var costString = '';
+    if (this.props.parsedData.get(transit.keyword('route'))[0].get(transit.keyword('peak'))) {
+      costString = '$25-31';
+    } else {
+      costString = '$23-26';
+    }
+
+    return (
+      <table>
+        <thead>
+          <tr>
+            <td>Depart Penn</td>
+            <td>Arrive F.I.P.</td>
+            <td>Travel time</td>
+            <td>Cost</td>
+          </tr>
+        </thead>
+        <tbody>
+          <tr>
+            <td>{departureTimeString}</td>
+            <td>{arrivalTimeString}</td>
+            <td>{durationString}</td>
+            <td>{costString}</td>
+          </tr>
+        </tbody>
+      </table>
+    )
+  }
+});
+
+var Directions = React.createClass({
+  render: function() {
+    // need to fill in gaps from parsedData
+    return (
+      <ol>
+        <li><p>Start at Penn Station.</p></li>
+        <li><p>DEPARTURE[0]: Take the ROUTE[0]-bound train to DESTINATION[0]. (You&rsquo;ll need to buy a PEAK/OFFPEAK ticket.)</p></li>
+        <li><p>ARRIVAL[0]: Get off at ORIGIN[1] (DEPARTURE[1]-ARRIVAL[0] mins to make connection).</p></li>
+        <li><p>DEPARTURE[1]: Transfer to the train to DESTINATION (on the ROUTE-bound line).</p></li>
+        <li><p>ARRIVAL[1]: Arrive at Sayville (FERRYTIME-ARRIVAL[1] mins to make connection to the ferry).</p></li>
+        <li><p>FINAL ARRIVAL TIME: Arrive in the Pines!</p></li>
+      </ol>
     )
   }
 });
