@@ -247,22 +247,26 @@ var Route = React.createClass({
 
 var Itinerary = React.createClass({
   render: function() {
-    var departureTimeString = moment(this.props.parsedData.get(transit.keyword('summary')).get(transit.keyword('departure'))).format('h:mm a');
-    var arrivalTimeString = moment(this.props.parsedData.get(transit.keyword('summary')).get(transit.keyword('arrival'))).format('h:mm a');
+    var data = this.props.parsedData;
+    var summaryData = data.get(transit.keyword('summary'));
+    var routeData = data.get(transit.keyword('route'));
 
-    var durationString = '';
-    if (this.props.parsedData.get(transit.keyword('summary')).get(transit.keyword('duration')).get(transit.keyword('hours')) > 0) {
-      durationString += this.props.parsedData.get(transit.keyword('summary')).get(transit.keyword('duration')).get(transit.keyword('hours')) + 'h '
+    var departure = moment(summaryData.get(transit.keyword('departure'))).format('h:mm a');
+    var arrival = moment(summaryData.get(transit.keyword('arrival'))).format('h:mm a');
+
+    var duration = '';
+    if (summaryData.get(transit.keyword('duration')).get(transit.keyword('hours')) > 0) {
+      duration += summaryData.get(transit.keyword('duration')).get(transit.keyword('hours')) + 'h '
     }
-    if (this.props.parsedData.get(transit.keyword('summary')).get(transit.keyword('duration')).get(transit.keyword('minutes')) > 0) {
-      durationString += this.props.parsedData.get(transit.keyword('summary')).get(transit.keyword('duration')).get(transit.keyword('minutes')) + 'm'
+    if (summaryData.get(transit.keyword('duration')).get(transit.keyword('minutes')) > 0) {
+      duration += summaryData.get(transit.keyword('duration')).get(transit.keyword('minutes')) + 'm'
     }
 
-    var costString = '';
-    if (this.props.parsedData.get(transit.keyword('route'))[0].get(transit.keyword('peak'))) {
-      costString = '$25-31';
+    var cost = '';
+    if (routeData[0].get(transit.keyword('peak'))) {
+      cost = '$25-31';
     } else {
-      costString = '$23-26';
+      cost = '$23-26';
     }
 
     return (
@@ -277,10 +281,10 @@ var Itinerary = React.createClass({
         </thead>
         <tbody>
           <tr>
-            <td>{departureTimeString}</td>
-            <td>{arrivalTimeString}</td>
-            <td>{durationString}</td>
-            <td>{costString}</td>
+            <td>{departure}</td>
+            <td>{arrival}</td>
+            <td>{duration}</td>
+            <td>{cost}</td>
           </tr>
         </tbody>
       </table>
@@ -290,15 +294,68 @@ var Itinerary = React.createClass({
 
 var Directions = React.createClass({
   render: function() {
-    // need to fill in gaps from parsedData
+    // i don't know how to make this less gross :(
+
+    var data = this.props.parsedData;
+    var summaryData = data.get(transit.keyword('summary'));
+    var routeData = data.get(transit.keyword('route'));
+
+    var ferryInputString = $('#departure-date').val() + ' ' + $('#departure-time').val();
+
+    var createDurationString = function(startTime, endTime) {
+      var duration = moment.duration(endTime.diff(startTime));
+      var minutes = duration.minutes();
+      var string = (minutes === 1) ? minutes + ' minute' : minutes + ' minutes'
+      return string;
+    };
+
+    var leg1 = {
+      departure: moment(data.get(transit.keyword('route'))[0].get(transit.keyword('departure'))),
+      arrival: moment(data.get(transit.keyword('route'))[0].get(transit.keyword('arrival'))),
+      destination: data.get(transit.keyword('route'))[0].get(transit.keyword('destination')),
+      route: data.get(transit.keyword('route'))[0].get(transit.keyword('route')),
+      peak: data.get(transit.keyword('route'))[0].get(transit.keyword('peak')) ? 'a peak' : 'an off-peak'
+    };
+    leg1.departureString = leg1.departure.format('h:mm a');
+    leg1.duration = createDurationString(leg1.departure, leg1.arrival);
+
+    var transfer1 = {
+      transfer: moment(data.get(transit.keyword('route'))[0].get(transit.keyword('arrival'))),
+      connection: moment(data.get(transit.keyword('route'))[1].get(transit.keyword('departure'))),
+      location: data.get(transit.keyword('route'))[1].get(transit.keyword('origin'))
+    }
+    transfer1.transferString = transfer1.transfer.format('h:mm a');
+    transfer1.duration = createDurationString(transfer1.transfer, transfer1.connection);
+
+    var leg2 = {
+      departure: moment(data.get(transit.keyword('route'))[1].get(transit.keyword('departure'))),
+      arrival: moment(data.get(transit.keyword('route'))[1].get(transit.keyword('arrival'))),
+      destination: data.get(transit.keyword('route'))[1].get(transit.keyword('destination')),
+      route: data.get(transit.keyword('route'))[1].get(transit.keyword('route')),
+    };
+    leg2.departureString = leg2.departure.format('h:mm a');
+    leg2.duration = createDurationString(leg2.departure, leg2.arrival);
+
+    var transfer2 = {
+      transfer: moment(data.get(transit.keyword('route'))[1].get(transit.keyword('arrival'))),
+      connection: moment(ferryInputString, 'M/D/YYYY h:mm a'), // ferry time
+      location: data.get(transit.keyword('route'))[1].get(transit.keyword('destination'))
+    }
+    transfer2.transferString = transfer2.transfer.format('h:mm a');
+    transfer2.duration = createDurationString(transfer2.transfer, transfer2.connection);
+
+    var arrival = moment(summaryData.get(transit.keyword('arrival'))).format('h:mm a');
+
     return (
       <ol>
         <li><p>Start at Penn Station.</p></li>
-        <li><p>DEPARTURE[0]: Take the ROUTE[0]-bound train to DESTINATION[0]. (You&rsquo;ll need to buy a PEAK/OFFPEAK ticket.)</p></li>
-        <li><p>ARRIVAL[0]: Get off at ORIGIN[1] (DEPARTURE[1]-ARRIVAL[0] mins to make connection).</p></li>
-        <li><p>DEPARTURE[1]: Transfer to the train to DESTINATION (on the ROUTE-bound line).</p></li>
-        <li><p>ARRIVAL[1]: Arrive at Sayville (FERRYTIME-ARRIVAL[1] mins to make connection to the ferry).</p></li>
-        <li><p>FINAL ARRIVAL TIME: Arrive in the Pines!</p></li>
+        <li><p><strong>{leg1.departureString}:</strong> Take the {leg1.route}-bound train to {leg1.destination}. <small>{leg1.duration}</small><br />
+          (You&rsquo;ll need to buy {leg1.peak} ticket.)</p></li>
+        <li><p><strong>{transfer1.transferString}:</strong> Get off at {transfer1.location}. <small>{transfer1.duration} to make connection to the next train</small></p></li>
+        <li><p><strong>{leg2.departureString}:</strong> Transfer to the {leg2.route}-bound train to {leg2.destination}. <small>{leg2.duration}</small></p></li>
+        <li><p><strong>{transfer2.transferString}:</strong> Arrive at Sayville. <small>{transfer2.duration} to make connection to the ferry</small></p></li>
+        <li><p><strong>TIME:</strong> Transfer to (ferry). <small>x minutes</small></p></li>
+        <li><p><strong>{arrival}:</strong> Arrive in the Pines!</p></li>
       </ol>
     )
   }
