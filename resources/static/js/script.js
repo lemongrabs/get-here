@@ -16,19 +16,27 @@ var App = React.createClass({
   },
 
   render: function() {
-
-    var routeClassString = this.state.returnedRoute ? '' : 'hidden';
-
-    return (
-      <div>
-        <Header />
-        <Intro />
-        <FerryPicker onRouteReturn={this.returnedRoute} />
-        <Route routeClassString={routeClassString} parsedData={this.parsedData} />
-        <Extra routeClassString={routeClassString} />
-        <Footer />
-      </div>
-    )
+    if (this.state.returnedRoute) {
+      return (
+        <div>
+          <Header />
+          <Intro />
+          <FerryPicker onRouteReturn={this.returnedRoute} />
+          <Route parsedData={this.state.parsedData} />
+          <Extra />
+          <Footer />
+        </div>
+      )
+    } else {
+      return (
+        <div>
+          <Header />
+          <Intro />
+          <FerryPicker onRouteReturn={this.returnedRoute} />
+          <Footer />
+        </div>
+      )
+    }
   }
 });
 
@@ -108,25 +116,53 @@ var FerryPicker = React.createClass({
     return {waiting: false};
   },
 
-  timepickerSetup: function() {
-    // need to set up datepicker/timepicker when build stuff is working
+  componentDidMount: function() {
+    // instantiate date picker, set up date validation (is that necessary anymore?)
+    $('#departure-date').datepicker({
+        'format': 'm/d/yyyy',
+        onRender: function(date){
+            // if ( date.valueOf() < summerStartDate.valueOf() || date.valueOf() > summerEndDate.valueOf() ) {
+            //     return 'disabled';
+            // }
+        }
+    }).on('updateView', function(e){
+        // $('.datepicker table').removeClass('lower-limit upper-limit');
+        // if (e.month === 201406) {
+        //     $('.datepicker table').addClass('lower-limit');
+        // } else if (e.month === 201409) {
+        //     $('.datepicker table').addClass('upper-limit');
+        // } else if (e.month < 201406 || e.month > 201409) {
+        //     $('.datepicker table').addClass('lower-limit upper-limit');
+        // }
+    });
+
+    // suppress month/year-level views
+    $('.datepicker .switch').on('click', function(e){
+        return false;
+    });
+
+    // instantiate time picker
+    $('#departure-time').timepicker();
+
+    // don't let people type random shit in the date/time pickers, because validation is not worth it
+    $('#departure-date, #departure-time').on('keydown', function(e){
+        e.preventDefault();
+        return false;
+    });
+    $('#departure-time').on('click', function(e){
+        $('.bootstrap-timepicker-widget input').on('keydown', function(e){
+            e.preventDefault();
+            return false;
+        });
+    });
   },
 
   onSubmit: function() {
     this.setState({waiting: true});
 
-    // should switch to using moment here, when build stuff is working
-    var departure_date = $('#departure-date').val().split('/'); // m/d/yyyy
-    var departure_time = $('#departure-time').val().split(/:| /); // HH:MM AM
-
-    var year = departure_date[2];
-    var month = departure_date[0];
-    var day = departure_date[1];
-    var hour = (departure_time[2] === 'AM') ? departure_time[0] % 12 : 12 + (parseInt(departure_time[0], 10) + 12) % 12;
-    var minute = departure_time[1];
-
+    var dateTimeInputString = $('#departure-date').val() + ' ' + $('#departure-time').val();
     var data = transit.map([transit.keyword('arrive-by'),
-               new Date(year, month, day, hour, minute)]);
+               moment(dateTimeInputString, 'M/D/YYYY h:mm:ss a').toDate()]);
 
     $.ajax({'url': '/directions',
             'type': 'POST',
@@ -147,20 +183,19 @@ var FerryPicker = React.createClass({
   },
 
   render: function() {
-    this.timepickerSetup();
-
+    var defaultDate = moment().format('M/D/YYYY');
+    var defaultTime = moment().format('h:mm:ss a');
     var buttonClassString = this.state.waiting ? 'loading' : '';
 
-    // i put temporary date/time values in here until the datepicker works
     return (
       <section id="departure">
         <h2>Which ferry are you trying to catch?</h2>
         <div className="content">
           <div className="input departure-date">
-            <input type="text" id="departure-date" className="datetime-input" maxLength="10" value="7/1/2015" />
+            <input type="text" id="departure-date" className="datetime-input" maxLength="10" defaultValue={defaultDate} />
           </div>
           <div className="input departure-time">
-            <input type="text" id="departure-time" className="datetime-input" value="3:00 PM" />
+            <input type="text" id="departure-time" className="datetime-input" defaultValue={defaultTime} />
           </div>
         </div>
         <button id="get-itineraries" className={buttonClassString} onClick={this.onSubmit}><span>Next!</span></button>
@@ -172,10 +207,10 @@ var FerryPicker = React.createClass({
 var Route = React.createClass({
   render: function() {
 
-    // fake data, sample copy below. each step in the <ol> also has a 'more information' panel that needs to be added
+    // some sample copy below. each step in the <ol> also has a 'more information' panel that needs to be added
 
     return (
-      <section id="itinerary-directions" className={this.props.routeClassString}>
+      <section id="itinerary-directions">
         <h2>Your itinerary &amp; directions</h2>
 
         <table>
@@ -192,7 +227,7 @@ var Route = React.createClass({
               <td>7:49 am</td>
               <td>9:50 am</td>
               <td>2h 1m</td>
-              <td>$23-26</td>
+              <td>???</td>
             </tr>
           </tbody>
         </table>
@@ -217,10 +252,10 @@ var Route = React.createClass({
 var Extra = React.createClass({
   render: function() {
     return (
-      <section id="sharegurl" className={this.props.routeClassString}>
+      <section id="sharegurl">
          <h2>Have fun!</h2>
          <p>And don&rsquo;t forget - whether you&rsquo;re a Fire Island virgin or veteran, more friends on the island means more fun for you. <a href="http://sharegurl.com">ShareGurl</a> is the only place where you can find out when your friends are going to Fire Island and share your plans too. Come play with us this summer!</p>
-         <p align="center"><a href="https://itunes.apple.com/us/app/sharegurl-fire-island-friends/id646752256?mt=8"><img src="images/appstore.png" alt="Download on the App Store" /></a></p>
+         <p><center><a href="https://itunes.apple.com/us/app/sharegurl-fire-island-friends/id646752256?mt=8"><img src="images/appstore.png" alt="Download on the App Store" /></a></center></p>
       </section>
     )
   }
