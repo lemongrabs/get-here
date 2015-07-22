@@ -25,6 +25,7 @@ var App = React.createClass({
 
   render: function() {
     if (this.state.returnedRoute) {
+      
       return (
         <div>
           <Header />
@@ -292,10 +293,84 @@ var Itinerary = React.createClass({
   }
 });
 
+var createDurationString = function(startTime, endTime) {
+  var duration = moment.duration(moment(endTime).diff(moment(startTime)));
+  var minutes = duration.minutes();
+  var string = (minutes === 1) ? minutes + ' minute' : minutes + ' minutes'
+  return string;
+};
+
+var Step = React.createClass({
+  render: function() {
+    var leg = {
+      departure: moment(this.props.step.get(transit.keyword('departure'))),
+      arrival: moment(this.props.step.get(transit.keyword('arrival'))),
+      destination: this.props.step.get(transit.keyword('destination')),
+      route: this.props.step.get(transit.keyword('route')),
+      peak: this.props.step.get(transit.keyword('peak')) ? 'a peak' : 'an off-peak'
+    };
+    leg.departureString = leg.departure.format('h:mm a');
+    leg.duration = createDurationString(leg.departure, leg.arrival);
+
+    var peak = (
+      <span>
+      (You&rsquo;ll need to buy {this.props.peak} ticket.)
+        </span>
+    );
+    
+    return (
+      <li>
+      <p><strong>{leg.departureString}:</strong> Take the {leg.route}-bound train to {leg.destination}. <small>{leg.duration}</small><br />
+      {this.props.peak ? peak : null}
+      </p></li>
+    );
+    
+  }
+});
+
+var Transfer = React.createClass({
+  render: function() {
+    var transferString = moment(this.props.arrivalTime).format('h:mm a');
+    var durationString = createDurationString(this.props.arrivalTime, this.props.departureTime);
+
+    
+    return (
+      <li><p><strong>{transferString}:</strong> Get off at {this.props.location}. <small>{durationString} to make connection to the next train</small></p></li>
+    );
+  }
+});
+
+
 var Directions = React.createClass({
   render: function() {
     // i don't know how to make this less gross :(
+    
+    var data = this.props.parsedData;
+    var summaryData = data.get(transit.keyword('summary'));
+    var routeData = data.get(transit.keyword('route'));
 
+    console.log(routeData);
+
+    var renderedSteps = _.map(routeData, function(step, idx, steps) {
+      var isLast = (idx == (steps.length -1));
+      
+      return (
+        <div>
+          <Step step={step} />
+          <Transfer location={step.get(transit.keyword('destination'))} arrivalTime={step.get(transit.keyword('arrival'))} connection={isLast ? "Ferry" : steps[idx + 1].get(transit.keyword("origin"))} />
+        </div>
+      );
+    });
+    
+    return (
+      <div>
+      /* Preamble? */
+      {renderedSteps}
+      /* <Step ... /> */
+      </div>
+    );
+
+    /*
     var data = this.props.parsedData;
     var summaryData = data.get(transit.keyword('summary'));
     var routeData = data.get(transit.keyword('route'));
@@ -308,7 +383,8 @@ var Directions = React.createClass({
       var string = (minutes === 1) ? minutes + ' minute' : minutes + ' minutes'
       return string;
     };
-
+    
+    
     var leg1 = {
       departure: moment(data.get(transit.keyword('route'))[0].get(transit.keyword('departure'))),
       arrival: moment(data.get(transit.keyword('route'))[0].get(transit.keyword('arrival'))),
@@ -357,7 +433,8 @@ var Directions = React.createClass({
         <li><p><strong>TIME:</strong> Transfer to (ferry). <small>x minutes</small></p></li>
         <li><p><strong>{arrival}:</strong> Arrive in the Pines!</p></li>
       </ol>
-    )
+      )
+      */
   }
 });
 
