@@ -330,6 +330,11 @@ div.input {
     position: relative;
   }
 
+  .duration {
+    font-weight: bold;
+    color: $pink;
+  }
+
   .btn-xs.collapsed {
     .more {
       display: inline-block;
@@ -346,6 +351,10 @@ div.input {
     .less {
       display: inline-block;
     }
+  }
+
+  .collapse, .collapsing {
+    margin-top: 15px;
   }
 
   .collapsing, .collapse.in {

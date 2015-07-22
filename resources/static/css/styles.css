@@ -232,6 +232,9 @@ div.input {
   .step p {
     flex: 1;
     position: relative; }
+  .step .duration {
+    font-weight: bold;
+    color: #ed59b7; }
   .step .btn-xs.collapsed .more {
     display: inline-block; }
   .step .btn-xs.collapsed .less {
@@ -240,6 +243,8 @@ div.input {
     display: none; }
   .step .btn-xs .less {
     display: inline-block; }
+  .step .collapse, .step .collapsing {
+    margin-top: 15px; }
   .step .collapsing, .step .collapse.in {
     display: block;
     font-size: 85%; }
