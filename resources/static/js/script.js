@@ -1,31 +1,26 @@
-// original markup: https://github.com/lemongrabs/get-here/blob/master/resources/static/index.html
-
 var App = React.createClass({
   getInitialState: function() {
     return {
-      returnedRoute: false,
-      requestFailed: false,
-      parsedData: null
+      returnedRoute: null,
+      requestFailed: false
     };
   },
 
   returnedRoute: function(parsedData) {
     this.setState({
-      returnedRoute: true,
-      parsedData: parsedData
+      returnedRoute: parsedData
     });
   },
 
   requestErrored: function() {
     this.setState({
-      returnedRoute: false,
+      returnedRoute: null,
       requestFailed: true
     });
   },
 
   render: function() {
     if (this.state.returnedRoute) {
-      
       return (
         <div>
           <Header />
@@ -34,8 +29,8 @@ var App = React.createClass({
             onRouteReturn={this.returnedRoute}
             onRequestError={this.requestErrored}
             requestFailed={this.state.requestFailed} />
-          <Route
-            parsedData={this.state.parsedData} />
+          <Directions
+            parsedData={this.state.returnedRoute} />
           <Extra />
           <Footer />
         </div>
@@ -133,28 +128,29 @@ var FerryPicker = React.createClass({
   },
 
   componentDidMount: function() {
-    // instantiate date picker, set up date validation (is that necessary anymore?)
+    // instantiate date picker, set up date validation (still needs to be done?)
+    // schedule is for 6/26 thru 9/13/2015
     $('#departure-date').datepicker({
-        'format': 'm/d/yyyy',
-        onRender: function(date){
-            // if ( date.valueOf() < summerStartDate.valueOf() || date.valueOf() > summerEndDate.valueOf() ) {
-            //     return 'disabled';
-            // }
-        }
-    }).on('updateView', function(e){
-        // $('.datepicker table').removeClass('lower-limit upper-limit');
-        // if (e.month === 201406) {
-        //     $('.datepicker table').addClass('lower-limit');
-        // } else if (e.month === 201409) {
-        //     $('.datepicker table').addClass('upper-limit');
-        // } else if (e.month < 201406 || e.month > 201409) {
-        //     $('.datepicker table').addClass('lower-limit upper-limit');
+      'format': 'm/d/yyyy',
+      onRender: function(date){
+        // if ( date.valueOf() < summerStartDate.valueOf() || date.valueOf() > summerEndDate.valueOf() ) {
+        //     return 'disabled';
         // }
+      }
+    }).on('updateView', function(e){
+      // $('.datepicker table').removeClass('lower-limit upper-limit');
+      // if (e.month === 201406) {
+      //     $('.datepicker table').addClass('lower-limit');
+      // } else if (e.month === 201409) {
+      //     $('.datepicker table').addClass('upper-limit');
+      // } else if (e.month < 201406 || e.month > 201409) {
+      //     $('.datepicker table').addClass('lower-limit upper-limit');
+      // }
     });
 
     // suppress month/year-level views
     $('.datepicker .switch').on('click', function(e){
-        return false;
+      return false;
     });
 
     // instantiate time picker
@@ -162,14 +158,14 @@ var FerryPicker = React.createClass({
 
     // don't let people type random shit in the date/time pickers, because validation is not worth it
     $('#departure-date, #departure-time').on('keydown', function(e){
-        e.preventDefault();
-        return false;
+      e.preventDefault();
+      return false;
     });
     $('#departure-time').on('click', function(e){
-        $('.bootstrap-timepicker-widget input').on('keydown', function(e){
-            e.preventDefault();
-            return false;
-        });
+      $('.bootstrap-timepicker-widget input').on('keydown', function(e){
+        e.preventDefault();
+        return false;
+      });
     });
   },
 
@@ -193,7 +189,6 @@ var FerryPicker = React.createClass({
 
   onSuccess: function(response) {
     var parsedData = window.transit.reader('json').read(response.responseText);
-    window.parsedData = parsedData; // can take this out after debugging?
     this.setState({waiting: false});
     this.props.onRouteReturn(parsedData);
   },
@@ -231,13 +226,16 @@ var ErrorMessaging = React.createClass({
   }
 });
 
-var Route = React.createClass({
+var Directions = React.createClass({
   render: function() {
     return (
       <section id="itinerary-directions">
         <h2>Your itinerary &amp; directions</h2>
-        <Itinerary parsedData={this.props.parsedData} />
-        <Directions parsedData={this.props.parsedData} />
+        <Summary
+          summaryData={this.props.parsedData.get(transit.keyword('summary'))}
+          peak={this.props.parsedData.get(transit.keyword('route'))[0].get(transit.keyword('peak'))} />
+        <Steps
+          routeData={this.props.parsedData.get(transit.keyword('route'))} />
         <div id="shuttle">
           <p>Don&rsquo;t feel like taking the train, or think this is seeming a little too complicated? As an alternative, you can hop on the new <strong>ShareGurl Shuttle</strong> and get a ride from Manhattan directly to the ferry! <a href="http://new.sharegurl.com/stores/sharegurl-shuttle/about">More info &raquo;</a></p>
         </div>
@@ -246,29 +244,26 @@ var Route = React.createClass({
   }
 });
 
-var Itinerary = React.createClass({
+var createDurationString = function(startTime, endTime) {
+  var duration = moment.duration(moment(endTime).diff(moment(startTime)));
+  var hours = duration.hours();
+  var minutes = duration.minutes();
+  var string = '';
+  if (hours > 0) {
+    string += hours + ' h '
+  }
+  if (minutes > 0) {
+    string += minutes + ' min'
+  }
+  return string;
+};
+
+var Summary = React.createClass({
   render: function() {
-    var data = this.props.parsedData;
-    var summaryData = data.get(transit.keyword('summary'));
-    var routeData = data.get(transit.keyword('route'));
-
-    var departure = moment(summaryData.get(transit.keyword('departure'))).format('h:mm a');
-    var arrival = moment(summaryData.get(transit.keyword('arrival'))).format('h:mm a');
-
-    var duration = '';
-    if (summaryData.get(transit.keyword('duration')).get(transit.keyword('hours')) > 0) {
-      duration += summaryData.get(transit.keyword('duration')).get(transit.keyword('hours')) + 'h '
-    }
-    if (summaryData.get(transit.keyword('duration')).get(transit.keyword('minutes')) > 0) {
-      duration += summaryData.get(transit.keyword('duration')).get(transit.keyword('minutes')) + 'm'
-    }
-
-    var cost = '';
-    if (routeData[0].get(transit.keyword('peak'))) {
-      cost = '$25-31';
-    } else {
-      cost = '$23-26';
-    }
+    var departureTime = this.props.summaryData.get(transit.keyword('departure'));
+    var arrivalTime = this.props.summaryData.get(transit.keyword('arrival'));
+    var duration = createDurationString(departureTime, moment(arrivalTime).add(20, 'm').toDate());
+    var cost = this.props.peak ? '$25-31' : '$23-26';
 
     return (
       <table>
@@ -282,8 +277,8 @@ var Itinerary = React.createClass({
         </thead>
         <tbody>
           <tr>
-            <td>{departure}</td>
-            <td>{arrival}</td>
+            <td>{moment(departureTime).format('h:mm a')}</td>
+            <td>{moment(arrivalTime).format('h:mm a')}</td>
             <td>{duration}</td>
             <td>{cost}</td>
           </tr>
@@ -293,148 +288,69 @@ var Itinerary = React.createClass({
   }
 });
 
-var createDurationString = function(startTime, endTime) {
-  var duration = moment.duration(moment(endTime).diff(moment(startTime)));
-  var minutes = duration.minutes();
-  var string = (minutes === 1) ? minutes + ' minute' : minutes + ' minutes'
-  return string;
-};
-
-var Step = React.createClass({
+var Steps = React.createClass({
   render: function() {
-    var leg = {
-      departure: moment(this.props.step.get(transit.keyword('departure'))),
-      arrival: moment(this.props.step.get(transit.keyword('arrival'))),
-      destination: this.props.step.get(transit.keyword('destination')),
-      route: this.props.step.get(transit.keyword('route')),
-      peak: this.props.step.get(transit.keyword('peak')) ? 'a peak' : 'an off-peak'
-    };
-    leg.departureString = leg.departure.format('h:mm a');
-    leg.duration = createDurationString(leg.departure, leg.arrival);
+    var routeData = this.props.routeData;
+    var ferryInputString = $('#departure-date').val() + ' ' + $('#departure-time').val(); // this will change when the time picker is replaced w/ a list of ferries
+    var ferryDateTime = moment(ferryInputString, 'M/D/YYYY h:mm a').toDate();
 
-    var peak = (
-      <span>
-      (You&rsquo;ll need to buy {this.props.peak} ticket.)
-        </span>
-    );
-    
+    var renderedSteps = _.map(routeData, function(step, i, steps) {
+      var isLast = (i === (steps.length -1));
+      var transferDepartureTime = isLast ? ferryDateTime : steps[i + 1].get(transit.keyword('departure'));
+
+      console.log(transferDepartureTime);
+
+      return (
+        <div>
+          <Transit
+            departureTime={step.get(transit.keyword('departure'))}
+            origin={step.get(transit.keyword('origin'))}
+            destination={step.get(transit.keyword('destination'))}
+            route={step.get(transit.keyword('route'))}
+            peak={step.get(transit.keyword('peak'))}
+            duration={createDurationString(step.get(transit.keyword('departure')), step.get(transit.keyword('arrival')))} />
+
+          <Transfer
+            arrivalTime={step.get(transit.keyword('arrival'))}
+            location={step.get(transit.keyword('destination'))}
+            connection={isLast ? 'Sayville Ferry' : 'train to ' + steps[i + 1].get(transit.keyword('destination'))}
+            duration={createDurationString(step.get(transit.keyword('arrival')), transferDepartureTime)} />
+        </div>
+      );
+    });
+
     return (
-      <li>
-      <p><strong>{leg.departureString}:</strong> Take the {leg.route}-bound train to {leg.destination}. <small>{leg.duration}</small><br />
-      {this.props.peak ? peak : null}
-      </p></li>
+      <div>
+        <p>Start at Penn Station.</p>
+        {renderedSteps}
+        <p><strong>{moment(ferryDateTime).format('h:mm a')}:</strong> Take the ferry from Sayville Docks to the Pines. <small>20 min</small></p>
+        <p><strong>{moment(ferryDateTime).add(7, 'm').format('h:mm a')}:</strong> Arrive in Fire Island Pines!</p>
+      </div>
     );
-    
+  }
+});
+
+var Transit = React.createClass({
+  render: function() {
+    var peak = '';
+    if (this.props.origin === 'Penn Station') {
+      peak = (
+        <span>(You&rsquo;ll need to buy {(this.props.peak) ? 'a peak' : 'an off peak'} ticket.)</span>
+      );
+    }
+
+    return (
+      <p><strong>{moment(this.props.departureTime).format('h:mm a')}:</strong> Take the {this.props.route}-bound train to {this.props.destination}. <small>{this.props.duration}</small><br />
+      {peak}</p>
+    );
   }
 });
 
 var Transfer = React.createClass({
   render: function() {
-    var transferString = moment(this.props.arrivalTime).format('h:mm a');
-    var durationString = createDurationString(this.props.arrivalTime, this.props.departureTime);
-
-    
     return (
-      <li><p><strong>{transferString}:</strong> Get off at {this.props.location}. <small>{durationString} to make connection to the next train</small></p></li>
+      <p><strong>{moment(this.props.arrivalTime).format('h:mm a')}:</strong> Get off at {this.props.location} to transfer to the {this.props.connection}. <small>{this.props.duration} to make connection</small></p>
     );
-  }
-});
-
-
-var Directions = React.createClass({
-  render: function() {
-    // i don't know how to make this less gross :(
-    
-    var data = this.props.parsedData;
-    var summaryData = data.get(transit.keyword('summary'));
-    var routeData = data.get(transit.keyword('route'));
-
-    console.log(routeData);
-
-    var renderedSteps = _.map(routeData, function(step, idx, steps) {
-      var isLast = (idx == (steps.length -1));
-      
-      return (
-        <div>
-          <Step step={step} />
-          <Transfer location={step.get(transit.keyword('destination'))} arrivalTime={step.get(transit.keyword('arrival'))} connection={isLast ? "Ferry" : steps[idx + 1].get(transit.keyword("origin"))} />
-        </div>
-      );
-    });
-    
-    return (
-      <div>
-      /* Preamble? */
-      {renderedSteps}
-      /* <Step ... /> */
-      </div>
-    );
-
-    /*
-    var data = this.props.parsedData;
-    var summaryData = data.get(transit.keyword('summary'));
-    var routeData = data.get(transit.keyword('route'));
-
-    var ferryInputString = $('#departure-date').val() + ' ' + $('#departure-time').val();
-
-    var createDurationString = function(startTime, endTime) {
-      var duration = moment.duration(endTime.diff(startTime));
-      var minutes = duration.minutes();
-      var string = (minutes === 1) ? minutes + ' minute' : minutes + ' minutes'
-      return string;
-    };
-    
-    
-    var leg1 = {
-      departure: moment(data.get(transit.keyword('route'))[0].get(transit.keyword('departure'))),
-      arrival: moment(data.get(transit.keyword('route'))[0].get(transit.keyword('arrival'))),
-      destination: data.get(transit.keyword('route'))[0].get(transit.keyword('destination')),
-      route: data.get(transit.keyword('route'))[0].get(transit.keyword('route')),
-      peak: data.get(transit.keyword('route'))[0].get(transit.keyword('peak')) ? 'a peak' : 'an off-peak'
-    };
-    leg1.departureString = leg1.departure.format('h:mm a');
-    leg1.duration = createDurationString(leg1.departure, leg1.arrival);
-
-    var transfer1 = {
-      transfer: moment(data.get(transit.keyword('route'))[0].get(transit.keyword('arrival'))),
-      connection: moment(data.get(transit.keyword('route'))[1].get(transit.keyword('departure'))),
-      location: data.get(transit.keyword('route'))[1].get(transit.keyword('origin'))
-    }
-    transfer1.transferString = transfer1.transfer.format('h:mm a');
-    transfer1.duration = createDurationString(transfer1.transfer, transfer1.connection);
-
-    var leg2 = {
-      departure: moment(data.get(transit.keyword('route'))[1].get(transit.keyword('departure'))),
-      arrival: moment(data.get(transit.keyword('route'))[1].get(transit.keyword('arrival'))),
-      destination: data.get(transit.keyword('route'))[1].get(transit.keyword('destination')),
-      route: data.get(transit.keyword('route'))[1].get(transit.keyword('route')),
-    };
-    leg2.departureString = leg2.departure.format('h:mm a');
-    leg2.duration = createDurationString(leg2.departure, leg2.arrival);
-
-    var transfer2 = {
-      transfer: moment(data.get(transit.keyword('route'))[1].get(transit.keyword('arrival'))),
-      connection: moment(ferryInputString, 'M/D/YYYY h:mm a'), // ferry time
-      location: data.get(transit.keyword('route'))[1].get(transit.keyword('destination'))
-    }
-    transfer2.transferString = transfer2.transfer.format('h:mm a');
-    transfer2.duration = createDurationString(transfer2.transfer, transfer2.connection);
-
-    var arrival = moment(summaryData.get(transit.keyword('arrival'))).format('h:mm a');
-
-    return (
-      <ol>
-        <li><p>Start at Penn Station.</p></li>
-        <li><p><strong>{leg1.departureString}:</strong> Take the {leg1.route}-bound train to {leg1.destination}. <small>{leg1.duration}</small><br />
-          (You&rsquo;ll need to buy {leg1.peak} ticket.)</p></li>
-        <li><p><strong>{transfer1.transferString}:</strong> Get off at {transfer1.location}. <small>{transfer1.duration} to make connection to the next train</small></p></li>
-        <li><p><strong>{leg2.departureString}:</strong> Transfer to the {leg2.route}-bound train to {leg2.destination}. <small>{leg2.duration}</small></p></li>
-        <li><p><strong>{transfer2.transferString}:</strong> Arrive at Sayville. <small>{transfer2.duration} to make connection to the ferry</small></p></li>
-        <li><p><strong>TIME:</strong> Transfer to (ferry). <small>x minutes</small></p></li>
-        <li><p><strong>{arrival}:</strong> Arrive in the Pines!</p></li>
-      </ol>
-      )
-      */
   }
 });
 
