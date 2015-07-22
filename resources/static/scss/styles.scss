@@ -293,7 +293,7 @@ div.input {
     height: 100%;
     border: 2px solid $purple;
     opacity: .4;
-    left: 85px;
+    left: 83px;
     top: 12px;
   }
 
@@ -305,28 +305,52 @@ div.input {
     border: 0;
   }
 
+  &::after {
+    content: '';
+    z-index: 20;
+    display: block;
+    background: $purple;
+    width: 12px;
+    height: 12px;
+    border-radius: 6px;
+    position: absolute;
+    top: 6px;
+    left: 79px;
+  }
+
   strong {
     display: block;
     margin-right: 30px;
     width: 70px;
+    text-align: right;
   }
 
   p {
     flex: 1;
     position: relative;
+  }
 
-    &::before {
-      content: '';
-      z-index: 20;
-      display: block;
-      background: $purple;
-      width: 12px;
-      height: 12px;
-      border-radius: 6px;
-      position: absolute;
-      top: 6px;
-      left: -19px;
+  .btn-xs.collapsed {
+    .more {
+      display: inline-block;
     }
+    .less {
+      display: none;
+    }
+  }
+
+  .btn-xs {
+    .more {
+      display: none;
+    }
+    .less {
+      display: inline-block;
+    }
+  }
+
+  .collapsing, .collapse.in {
+    display: block;
+    font-size: 85%;
   }
 }
 

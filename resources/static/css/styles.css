@@ -207,30 +207,42 @@ div.input {
     height: 100%;
     border: 2px solid #9b59b6;
     opacity: .4;
-    left: 85px;
+    left: 83px;
     top: 12px; }
   .step.transfer::before {
     border: 2px dotted #9b59b6; }
   .step::before {
     border: 0; }
+  .step::after {
+    content: '';
+    z-index: 20;
+    display: block;
+    background: #9b59b6;
+    width: 12px;
+    height: 12px;
+    border-radius: 6px;
+    position: absolute;
+    top: 6px;
+    left: 79px; }
   .step strong {
     display: block;
     margin-right: 30px;
-    width: 70px; }
+    width: 70px;
+    text-align: right; }
   .step p {
     flex: 1;
     position: relative; }
-    .step p::before {
-      content: '';
-      z-index: 20;
-      display: block;
-      background: #9b59b6;
-      width: 12px;
-      height: 12px;
-      border-radius: 6px;
-      position: absolute;
-      top: 6px;
-      left: -19px; }
+  .step .btn-xs.collapsed .more {
+    display: inline-block; }
+  .step .btn-xs.collapsed .less {
+    display: none; }
+  .step .btn-xs .more {
+    display: none; }
+  .step .btn-xs .less {
+    display: inline-block; }
+  .step .collapsing, .step .collapse.in {
+    display: block;
+    font-size: 85%; }
 
 #callout {
   background-color: #ed59b7;

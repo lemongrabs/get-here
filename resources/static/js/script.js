@@ -110,10 +110,10 @@ var Intro = React.createClass({
     return (
       <section id="intro">
         <h2>Welcome to your journey to Fire Island Pines.</h2>
-        <p>The trip is famously challenging, but we’ll get through it together. Remember the two most important rules:
+        <p>The trip is famously challenging, but we&rsquo;ll get through it together. Remember the two most important rules:
           <ul>
             <li>If people look gay, you should probably follow them.</li>
-            <li>It might seem like everyone knows what they&rsquo;re doing, but everyone had to learn at some point. Don’t be afraid to ask.</li>
+            <li>It might seem like everyone knows what they&rsquo;re doing, but everyone had to learn at some point. Don&rsquo;t be afraid to ask.</li>
           </ul>
         </p>
         <p>And if you don&rsquo;t feel like taking the train, Sharegurl&rsquo;s got you covered: this summer, enjoy our new dedicated bus service that will take you directly from Manhattan to the ferry.  <a href="http://new.sharegurl.com/stores/sharegurl-shuttle/about">More info &raquo;</a></p>
@@ -277,8 +277,8 @@ var Summary = React.createClass({
         </thead>
         <tbody>
           <tr>
-            <td>{moment(departureTime).format('h:mm a')}</td>
-            <td>{moment(arrivalTime).format('h:mm a')} [wrong]</td>
+            <td>{moment(departureTime).format('h:mm a')} [?]</td>
+            <td>{moment(arrivalTime).format('h:mm a')} [?]</td>
             <td>{duration}</td>
             <td>{cost}</td>
           </tr>
@@ -312,6 +312,7 @@ var Steps = React.createClass({
             arrivalTime={step.get(transit.keyword('arrival'))}
             location={step.get(transit.keyword('destination'))}
             connection={isLast ? 'Sayville Ferry' : 'train to ' + steps[i + 1].get(transit.keyword('destination'))}
+            transferType={isLast ? 'ferry-transfer' : 'train-transfer'}
             duration={createDurationString(step.get(transit.keyword('arrival')), transferDepartureTime)} />
         </div>
       );
@@ -321,8 +322,8 @@ var Steps = React.createClass({
       <div id="steps">
         <div className="step"><strong></strong> <p>Start at Penn Station.</p></div>
         {renderedSteps}
-        <div className="step"><strong>{moment(ferryDateTime).format('h:mm a')}:</strong> <p>Take the Sayville Ferry to the Fire Island Pines. <small>20 min</small></p></div>
-        <div className="step last"><strong>{moment(ferryDateTime).add(7, 'm').format('h:mm a')}:</strong> <p>Arrive in the Pines!</p></div>
+        <div className="step"><strong>{moment(ferryDateTime).format('h:mm a')}</strong> <p>Take the Sayville Ferry to the Fire Island Pines. <small>20 min</small></p></div>
+        <div className="step last"><strong>{moment(ferryDateTime).add(7, 'm').format('h:mm a')}</strong> <p>Arrive in the Pines!</p></div>
       </div>
     );
   }
@@ -333,11 +334,17 @@ var Transit = React.createClass({
     var peak = '';
     if (this.props.origin === 'Penn Station') {
       peak = (
-        <small>(You&rsquo;ll need to buy {(this.props.peak) ? 'a peak' : 'an off-peak'} ticket.)</small>
+        <small>You&rsquo;ll need to buy {(this.props.peak) ? 'a peak' : 'an off-peak'} ticket.</small>
       );
     }
     return (
-      <div className="step transit"><strong>{moment(this.props.departureTime).format('h:mm a')}</strong> <p>Take the {this.props.route} line train to {this.props.destination}. <small>{this.props.duration}</small><br />{peak}</p></div>
+      <div className="step transit">
+        <strong>{moment(this.props.departureTime).format('h:mm a')}</strong>
+        <p>Take the {this.props.route} line train to {this.props.destination}. <small>{this.props.duration}</small><br />
+          {peak}
+          <StepDetails whichStep={this.props.origin} />
+        </p>
+      </div>
     );
   }
 });
@@ -345,9 +352,55 @@ var Transit = React.createClass({
 var Transfer = React.createClass({
   render: function() {
     return (
-      <div className="step transfer"><strong>{moment(this.props.arrivalTime).format('h:mm a')}</strong> <p>Get off at {this.props.location} to transfer to the {this.props.connection}. <small>{this.props.duration} to make connection</small></p></div>
+      <div className="step transfer">
+        <strong>{moment(this.props.arrivalTime).format('h:mm a')}</strong>
+        <p>Get off at {this.props.location} to transfer to the {this.props.connection}.<br />
+          <small>{this.props.duration} to make connection</small>
+          <StepDetails whichStep={this.props.transferType} />
+        </p>
+      </div>
     );
   }
+});
+
+var StepDetails = React.createClass({
+  render: function() {
+    var id = this.props.whichStep.replace(' ', '-').toLowerCase();
+    var details = '';
+
+    switch(this.props.whichStep) {
+      case 'Penn Station':
+        details = (
+          'stuff for penn station'
+        );
+        break;
+      case 'train-transfer':
+        details = 'stuff about transferring trains'
+        break;
+      case 'ferry-transfer':
+        details = 'stuff about getting to the ferry'
+        break;
+    }
+
+    if (details.length > 0) {
+      return (
+        <span className="details">
+          <a className="btn btn-link btn-xs collapsed" href={"#" + id}  data-toggle="collapse" aria-expanded="false" aria-controls={id}>
+            <span className="more">More info</span>
+            <span className="less">Less info</span>
+          </a>
+          <span className="collapse" id={id}>
+            {details}
+          </span>
+        </span>
+      )
+    } else {
+      return (
+        <span></span>
+      )
+    }
+  }
+
 });
 
 var Extra = React.createClass({
