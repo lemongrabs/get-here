@@ -229,14 +229,14 @@ var ErrorMessaging = React.createClass({
 var Directions = React.createClass({
   render: function() {
     return (
-      <section id="itinerary-directions">
+      <section id="directions">
         <h2>Your itinerary &amp; directions</h2>
         <Summary
           summaryData={this.props.parsedData.get(transit.keyword('summary'))}
           peak={this.props.parsedData.get(transit.keyword('route'))[0].get(transit.keyword('peak'))} />
         <Steps
           routeData={this.props.parsedData.get(transit.keyword('route'))} />
-        <div id="shuttle">
+        <div id="callout">
           <p>Don&rsquo;t feel like taking the train, or think this is seeming a little too complicated? As an alternative, you can hop on the new <strong>ShareGurl Shuttle</strong> and get a ride from Manhattan directly to the ferry! <a href="http://new.sharegurl.com/stores/sharegurl-shuttle/about">More info &raquo;</a></p>
         </div>
       </section>
@@ -278,7 +278,7 @@ var Summary = React.createClass({
         <tbody>
           <tr>
             <td>{moment(departureTime).format('h:mm a')}</td>
-            <td>{moment(arrivalTime).format('h:mm a')}</td>
+            <td>{moment(arrivalTime).format('h:mm a')} [wrong]</td>
             <td>{duration}</td>
             <td>{cost}</td>
           </tr>
@@ -297,8 +297,6 @@ var Steps = React.createClass({
     var renderedSteps = _.map(routeData, function(step, i, steps) {
       var isLast = (i === (steps.length -1));
       var transferDepartureTime = isLast ? ferryDateTime : steps[i + 1].get(transit.keyword('departure'));
-
-      console.log(transferDepartureTime);
 
       return (
         <div>
@@ -320,11 +318,11 @@ var Steps = React.createClass({
     });
 
     return (
-      <div>
-        <p>Start at Penn Station.</p>
+      <div id="steps">
+        <div className="step"><strong></strong> <p>Start at Penn Station.</p></div>
         {renderedSteps}
-        <p><strong>{moment(ferryDateTime).format('h:mm a')}:</strong> Take the ferry from Sayville Docks to the Pines. <small>20 min</small></p>
-        <p><strong>{moment(ferryDateTime).add(7, 'm').format('h:mm a')}:</strong> Arrive in Fire Island Pines!</p>
+        <div className="step"><strong>{moment(ferryDateTime).format('h:mm a')}:</strong> <p>Take the Sayville Ferry to the Fire Island Pines. <small>20 min</small></p></div>
+        <div className="step last"><strong>{moment(ferryDateTime).add(7, 'm').format('h:mm a')}:</strong> <p>Arrive in the Pines!</p></div>
       </div>
     );
   }
@@ -335,13 +333,11 @@ var Transit = React.createClass({
     var peak = '';
     if (this.props.origin === 'Penn Station') {
       peak = (
-        <span>(You&rsquo;ll need to buy {(this.props.peak) ? 'a peak' : 'an off peak'} ticket.)</span>
+        <small>(You&rsquo;ll need to buy {(this.props.peak) ? 'a peak' : 'an off-peak'} ticket.)</small>
       );
     }
-
     return (
-      <p><strong>{moment(this.props.departureTime).format('h:mm a')}:</strong> Take the {this.props.route}-bound train to {this.props.destination}. <small>{this.props.duration}</small><br />
-      {peak}</p>
+      <div className="step transit"><strong>{moment(this.props.departureTime).format('h:mm a')}</strong> <p>Take the {this.props.route} line train to {this.props.destination}. <small>{this.props.duration}</small><br />{peak}</p></div>
     );
   }
 });
@@ -349,7 +345,7 @@ var Transit = React.createClass({
 var Transfer = React.createClass({
   render: function() {
     return (
-      <p><strong>{moment(this.props.arrivalTime).format('h:mm a')}:</strong> Get off at {this.props.location} to transfer to the {this.props.connection}. <small>{this.props.duration} to make connection</small></p>
+      <div className="step transfer"><strong>{moment(this.props.arrivalTime).format('h:mm a')}</strong> <p>Get off at {this.props.location} to transfer to the {this.props.connection}. <small>{this.props.duration} to make connection</small></p></div>
     );
   }
 });
