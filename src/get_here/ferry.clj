@@ -32,63 +32,25 @@
 (def not-on (comp complement on))
 
 (def times
-  {(within? [2014 5 22] [2014 6 26])
-   {(every-pred pr/monday? (not-on 2014 5 26))
-    [{(not-on 2014 5 26) "5:40 AM"}
+  {(within? [2015 6 26] [2015 9 13])
+   {(every-pred pr/monday?
+                (not-on 2015 9 7))
+    [{(some-fn (not-on 2015 9 7)
+               (on 2015 9 8))
+      "5:45 AM"}
      "7:00 AM"
-     "9:30 AM"
-     "11:30 AM"
-     "1:30 PM"
-     "3:30 PM"
-     "5:30 PM"
-     "7:30 PM"]
-    
-    (some-fn pr/tuesday? pr/wednesday? pr/thursday?)
-    [{(on 2014 5 27) "5:40 AM"}
-     "7:00 AM"
+     "8:00 AM"
      "9:30 AM"
      "11:30 AM"
      "1:30 PM"
      "3:30 PM"
      "5:30 PM"
      "7:30 PM"
-     {pr/thursday? "9:15 PM"}]
+     "9:15 PM"]
     
-    pr/friday?
+    (some-fn pr/tuesday?
+             pr/wednesday?)
     ["7:00 AM"
-     "9:30 AM"
-     "11:30 AM"
-     "1:30 PM"
-     "3:30 PM"
-     "4:30 PM"
-     "5:30 PM"
-     "6:30 PM"
-     "7:30 PM"
-     "8:30 PM"
-     "9:30 PM"
-     "10:30 PM"
-     "12:00 AM"]
-    
-    (some-fn pr/saturday? pr/sunday? (on 2014 5 26))
-    ["8:00 AM"
-     "9:20 AM"
-     "10:20 AM"
-     "11:20 AM"
-     "12:20 PM"
-     "1:20 PM"
-     {pr/sunday? "2:15 PM"}
-     "3:15 PM"
-     "4:15 PM"
-     "5:15 PM"
-     "6:15 PM"
-     "7:15 PM"
-     "8:15 PM"
-     "9:15 PM"]}
-
-   (within? [2014 6 27] [2014 9 7])
-   {(every-pred pr/monday? (not-on 2014 9 1))
-    ["5:45 AM"
-     "7:00 AM"
      "8:00 AM"
      "9:30 AM"
      "11:30 AM"
@@ -96,20 +58,9 @@
      "3:30 PM"
      "5:30 PM"
      "7:30 PM"
-     "8:30 PM"]
+     "9:15 PM"]
     
-    (some-fn pr/tuesday? pr/wednesday?)
-    [{(on 2014 9 2) "5:45 AM"}
-     "7:00 AM"
-     "8:00 AM"
-     "9:30 AM"
-     "11:30 AM"
-     "1:30 PM"
-     "3:30 PM"
-     "5:30 PM"
-     "7:30 PM"]
-    
-    (every-pred pr/thursday? (not-on 2014 7 3))
+    pr/thursday?
     ["7:00 AM"
      "8:00 AM"
      "9:30 AM"
@@ -121,7 +72,9 @@
      "8:30 PM"
      "10:15 PM"]
 
-    (some-fn pr/friday? (on 2014 7 3))
+    (some-fn (every-pred pr/friday?
+                         (not-on 2015 7 3))
+             (on 2015 7 2))
     ["7:00 AM"
      "8:00 AM"
      "9:30 AM"
@@ -136,24 +89,30 @@
      "8:00 PM"
      "8:30 PM"
      "9:30 PM"
-     "10:30 PM"
-     "12:00 AM"]
-    
-    (some-fn pr/saturday? pr/sunday?)
+     "10:30 PM"]
+
+    (some-fn (every-pred pr/saturday?
+                         (not-on 2015 7 4))
+             (on 2015 7 3))
+    "12:15 AM"
+
+    (some-fn pr/saturday?
+             pr/sunday?
+             (on 2015 7 3))
     ["8:00 AM"
-     "9:20 AM"
-     "10:20 AM"
-     "11:20 AM"
-     "12:20 PM"
-     "1:20 PM"
-     "2:15 PM"
-     "3:15 PM"
-     "4:15 PM"
-     "5:15 PM"
-     "6:15 PM"
-     "7:15 PM"
-     "8:15 PM"
-     "9:15 PM"
+     "9:25 AM"
+     "10:25 AM"
+     "11:25 AM"
+     "12:25 PM"
+     "1:25 PM"
+     "2:20 PM"
+     "3:20 PM"
+     "4:20 PM"
+     "5:20 PM"
+     "6:20 PM"
+     "7:20 PM"
+     "8:20 PM"
+     "9:20 PM"
      "10:30 PM"]}})
 
 (defn parse-ferry-time
