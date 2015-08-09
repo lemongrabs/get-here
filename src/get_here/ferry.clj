@@ -124,7 +124,6 @@
   ([d]
      (times-for d times))
   ([d x]
-   (println "Type: " (type d))
    (cond (string? x)
          [(c/to-date (.toDateTime d (parse-ferry-time x) eastern))]
          
