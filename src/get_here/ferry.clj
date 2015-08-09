@@ -1,7 +1,8 @@
 (ns get-here.ferry
   (:require [clj-time.core :as t]
             [clj-time.format :as f]
-            [clj-time.predicates :as pr])
+            [clj-time.predicates :as pr]
+            [clj-time.coerce :as c])
   (:import (org.joda.time LocalTime)))
 
 ;; http://www.sayvilleferry.com/schedule-pines.php
@@ -122,26 +123,15 @@
 (defn times-for
   ([d]
      (times-for d times))
-  ([d times]
-     (cond (string? times)
-           (let [ferry-time (.toDateTime d (parse-ferry-time times) eastern)]
-             [{:origin "Sayville"
-               :destination "Sayville Dock"
-               :towards "Sayville Dock"
-               :route "Sayville Ferry Shuttle"
-               :departure (.getMillis (t/minus ferry-time (t/minutes 15)))
-               :arrival (.getMillis (t/minus ferry-time (t/minutes 5)))}
-              {:origin "Sayville Dock"
-               :destination "Fire Island Pines"
-               :towards "Fire Island Pines"
-               :route "Sayville Ferry"
-               :departure (.getMillis ferry-time)
-               :arrival (.getMillis (t/plus ferry-time (t/minutes 20)))}])
-           
-           (vector? times)
-           (mapcat (partial times-for d) times)
+  ([d x]
+   (println "Type: " (type d))
+   (cond (string? x)
+         [(c/to-date (.toDateTime d (parse-ferry-time x) eastern))]
+         
+         (vector? x)
+         (mapcat (partial times-for d) x)
 
-           (map? times)
-           (mapcat (fn [[pred? time]]
-                     (when (pred? d) (times-for d time)))
-                   times))))
+         (map? x)
+         (mapcat (fn [[pred? time]]
+                   (when (pred? d) (times-for d time)))
+                 x))))

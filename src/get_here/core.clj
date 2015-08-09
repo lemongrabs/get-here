@@ -13,7 +13,9 @@
             [ring.util.response :as response]
             [environ.core :as env]
             [clojure.data.json :as json]
-            [clojure.walk :as walk])
+            [clojure.walk :as walk]
+            [get-here.ferry :as ferry]
+            [clj-time.coerce :as c])
   (:import [java.util Date]
            [java.time ZonedDateTime Instant ZoneId]))
 
@@ -87,46 +89,22 @@
           (mapv (fn [step]
                  (assoc step :peak (peak? step)))))}))
 
-#_ ;; example response
-{:summary
- {:origin "Penn Station",
-  :destination "Fire Island Pines",
-  :departure {:month 7, :day 10, :hour 7, :minute 49},
-  :arrival {:month 7, :day 10, :hour 9, :minute 50},
-  :duration {:hours 2, :minutes 1}},
- :route
- ({:origin "Penn Station",
-   :destination "Babylon",
-   :towards "Babylon",
-   :route "Babylon",
-   :departure {:month 7, :day 10, :hour 7, :minute 49},
-   :arrival {:month 7, :day 10, :hour 8, :minute 47},
-   :peak false}
-  {:origin "Babylon",
-   :destination "Sayville",
-   :towards "Montauk",
-   :route "Montauk",
-   :departure {:month 7, :day 10, :hour 8, :minute 52},
-   :arrival {:month 7, :day 10, :hour 9, :minute 9},
-   :peak false}
-  {:origin "Sayville",
-   :destination "Sayville Dock",
-   :towards "Sayville Dock",
-   :route "Sayville Ferry Shuttle",
-   :departure {:month 7, :day 10, :hour 9, :minute 15},
-   :arrival {:month 7, :day 10, :hour 9, :minute 25},
-   :peak false}
-  {:origin "Sayville Dock",
-   :destination "Fire Island Pines",
-   :towards "Fire Island Pines",
-   :route "Sayville Ferry",
-   :departure {:month 7, :day 10, :hour 9, :minute 30},
-   :arrival {:month 7, :day 10, :hour 9, :minute 50},
-   :peak false})}
-
 (defroutes routes
   (GET "/" []
     (response/resource-response "static/index.html"))
+
+  (POST "/ferries" {{:keys [date]} :body-params :as request}
+    (println "Request: " request)
+    (cond
+      (nil? date)
+      {:status 400, :body {:code 0, :reason "Provided map must contain the key: :date"} }
+      
+      (not (instance? Date date))
+      {:status 400, :body {:code 1, :reason "Value provided for :date must be a Date."}}
+
+      :else
+      {:status 200 :body {:times (ferry/times-for (.toLocalDate (c/from-date date)))}}))
+  
   
   (POST "/directions" {{:keys [arrive-by]} :body-params}
     (cond
@@ -156,14 +134,6 @@
       (params/wrap-params)
       (resource/wrap-resource "static")
       (wrap-file-info)))
-
-#_(defn -main
-  [port]
-  (doseq [f [#'routes/best-path
-             #'routes/trips-between]]
-    (alter-var-root f #(memo/lru % :lru/threshold 100)))
-  
-  (jetty/run-jetty app {:port (Integer/parseInt port)}))
 
 (defn -main
   [port]
