@@ -212,6 +212,12 @@ button {
   cursor: pointer;
 }
 
+#departure-time {
+  height: 34px;
+  position: relative;
+  top: -1px;
+}
+
 div.input {
   position: relative;
   display: inline-block;

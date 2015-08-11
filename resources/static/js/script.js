@@ -3,12 +3,20 @@ var App = React.createClass({
     return {
       returnedFerries: null,
       returnedRoute: null,
-      requestFailed: false,
+      errorType: '',
     };
   },
 
   returnedFerries: function(parsedData) {
-    this.setState({returnedFerries: parsedData});
+    if (parsedData.get(transit.keyword('times')).rep.length > 0) {
+      this.setState({returnedFerries: parsedData});
+    } else {
+      this.setState({
+        returnedFerries: null,
+        returnedRoute: null,
+        errorType: 'ferries'
+      });
+    }
   },
 
   returnedRoute: function(parsedData) {
@@ -19,7 +27,15 @@ var App = React.createClass({
     this.setState({
       returnedFerries: null,
       returnedRoute: null,
-      requestFailed: true,
+      errorType: 'routes',
+    });
+  },
+
+  resetSelections: function() {
+    this.setState({
+      returnedFerries: null,
+      returnedRoute: null,
+      errorType: '',
     });
   },
 
@@ -33,7 +49,8 @@ var App = React.createClass({
             onFerryReturn={this.returnedFerries}
             onRouteReturn={this.returnedRoute}
             onRequestError={this.requestErrored}
-            requestFailed={this.state.requestFailed}
+            resetSelections={this.resetSelections}
+            errorType={this.state.errorType}
             ferries={this.state.returnedFerries} />
           <Directions
             parsedData={this.state.returnedRoute} />
@@ -50,7 +67,8 @@ var App = React.createClass({
             onFerryReturn={this.returnedFerries}
             onRouteReturn={this.returnedRoute}
             onRequestError={this.requestErrored}
-            requestFailed={this.state.requestFailed}
+            resetSelections={this.resetSelections}
+            errorType={this.state.errorType}
             ferries={this.state.returnedFerries} />
           <Footer />
         </div>
@@ -135,12 +153,15 @@ var FerryPicker = React.createClass({
   },
 
   componentDidMount: function() {
+    var resetSelections = this.props.resetSelections;
     var onDateSelect = this.onDateSelect;
 
-    // instantiate bootstrap date picker
+    // instantiate bootstrap date picker with callbacks
     $('#departure-date').datepicker({
-      'format': 'm/d/yyyy'
+      'format': 'm/d/yyyy',
     }).on('changeDate', function(e) {
+      $('.datepicker').hide();
+      resetSelections();
       onDateSelect();
     });
 
@@ -208,9 +229,8 @@ var FerryPicker = React.createClass({
 
   render: function() {
     var defaultDate = moment().format('M/D/YYYY');
-    var defaultTime = moment().format('h:mm a');
+    var ferries = this.props.ferries ? this.props.ferries.get(transit.keyword('times')).rep : [];
     var buttonClassString = this.state.waiting ? 'loading' : '';
-    var errorMessaging = this.props.requestFailed ? (<div id="error"><p><strong>Oops! Something went wrong on our end.</strong> Try looking up your desired ferry time again.</p></div>) : (<div></div>);
 
     return (
       <section id="departure">
@@ -219,10 +239,10 @@ var FerryPicker = React.createClass({
           <div className="input departure-date">
             <input type="text" id="departure-date" className="datetime-input" maxLength="10" defaultValue={defaultDate} />
           </div>
-          <FerryTimes ferries={this.props.ferries} />
+          <FerryTimes ferries={ferries} />
         </div>
         <button onClick={this.onSubmit} id="get-itineraries" className={buttonClassString}><span>Next!</span></button>
-        {errorMessaging}
+        <ErrorMessaging errorType={this.props.errorType} />
       </section>
     )
   }
@@ -230,23 +250,26 @@ var FerryPicker = React.createClass({
 
 var FerryTimes = React.createClass({
   render: function() {
-    var ferries = this.props.ferries ? this.props.ferries.get(transit.keyword('times')).rep : [];
-    var renderedFerries = _.map(ferries, function(ferry, i, ferries) {
-      return (
-        <option value={moment(ferry).format('h:mm a')}>{moment(ferry).format('h:mm a')}</option>
-      );
+    var renderedFerries = _.map(this.props.ferries, function(ferry, i, ferries) {
+      return <option value={moment(ferry).format('h:mm a')}>{moment(ferry).format('h:mm a')}</option>;
     });
 
-    if (ferries.length > 0) {
-      return (
-        <select id="departure-time" className="datetime-input">
-          {renderedFerries}
-        </select>
-      )
+    return (
+      <div className="input departure-time">
+        <select id="departure-time" className="datetime-input">{renderedFerries}]</select>
+      </div>
+    )
+  }
+});
+
+var ErrorMessaging = React.createClass({
+  render: function() {
+    if (this.props.errorType === 'ferries') {
+      return <div id="error"><p><strong>Looks like there aren&rsquo;t any ferries for that date.</strong> Try looking up a different departure date.</p></div>
+    } else if (this.props.errorType === 'routes') {
+      return <div id="error"><p><strong>Oops! Something went wrong on our end.</strong> Try looking up your desired ferry date & time again.</p></div>
     } else {
-      return (
-        <span></span>
-      )
+      return <div></div>;
     }
   }
 });
