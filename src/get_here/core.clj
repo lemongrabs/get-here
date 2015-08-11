@@ -18,7 +18,7 @@
             [clj-time.coerce :as c]
             [clj-time.core :as t])
   (:import [java.util Date]
-           [java.time ZonedDateTime Instant ZoneId]
+           [java.time ZonedDateTime Instant ZoneId DayOfWeek]
            [java.time.temporal ChronoUnit]))
 
 (defn epoch-seconds->date [epoch-seconds]
@@ -60,15 +60,26 @@
 
 (def nyc-terminal? (partial contains? #{"Penn Station"}))
 
+(defn weekday? [zdt]
+  {pre [(instance? ZonedDateTime zdt)]}
+  (some? (#{DayOfWeek/MONDAY
+            DayOfWeek/TUESDAY
+            DayOfWeek/WEDNESDAY
+            DayOfWeek/THURSDAY
+            DayOfWeek/FRIDAY}
+          (.getDayOfWeek zdt))))
+
 (defn peak? [{:keys [origin destination departure arrival] :as directions}]
   {:pre [(instance? Date departure)
          (instance? Date arrival)]}
   (let [ny (ZoneId/of "America/New_York")
         departure-instant (ZonedDateTime/ofInstant (.toInstant departure) ny)
         arrival-instant (ZonedDateTime/ofInstant (.toInstant arrival) ny)]
-    (or (and (nyc-terminal? origin)
+    (or (and (weekday? departure-instant)
+             (nyc-terminal? origin)
              (<= 6 (.getHour departure-instant) 10))
-        (and (nyc-terminal? arrival)
+        (and (weekday? arrival-instant)
+             (nyc-terminal? arrival)
              (<= (.getHour arrival-instant) 20)))))
 
 (defn reformat-directions [body]
