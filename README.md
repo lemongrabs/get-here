@@ -12,15 +12,4 @@ You're going to need to set a `GOOGLE_API_KEY` for a project for which the "Dire
 1. Install [Leiningen](http://leiningen.org/)
 1. `lein run <PORT>`
 
-## Backend to-do list
-* Perf
-* Perf
-* Perf
-
-## Frontend to-do list
-* Implement using [React](http://facebook.github.io/react/)
-* Grunt build script to minify/concatenate CSS/JS
-* Update & test Twitter/FB share copy/images
-* Favicon
-
 ![Alt text](http://media.giphy.com/media/C06mU13FQHHhK/giphy.gif "adore delano says")
