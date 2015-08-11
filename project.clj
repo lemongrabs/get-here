@@ -13,7 +13,8 @@
                  [environ "1.0.0"]
                  [org.clojure/data.json "0.2.6"]]
 
-  :plugins [[lein-haml-sass "0.2.7-SNAPSHOT"]
+  :plugins [[lein-watch "0.0.2"]
+            [lein-haml-sass "0.2.7-SNAPSHOT"]
             [lein-asset-minifier "0.2.3"]]
 
   :scss {:src "resources/static/scss"
@@ -22,15 +23,26 @@
 
   :minify-assets
     {:assets
-      {"resources/static/js/vendor.min.js" ["resources/static/vendor/jquery.min.js"
-                                            "resources/static/vendor/bootstrap.min.js"
-                                            "resources/static/vendor/datepicker"
-                                            "resources/static/vendor/underscore.min.js"
-                                            "resources/static/vendor/react.min.js"
-                                            "resources/static/vendor/transit-0.8.807.js"
-                                            "resources/static/vendor/moment.min.js"]}}
+      {"resources/static/public/vendor.min.css" ["resources/static/vendor/"]
+       "resources/static/public/vendor.min.js"  ["resources/static/vendor/jquery.min.js"
+                                                 "resources/static/vendor/bootstrap"
+                                                 "resources/static/vendor/datepicker"
+                                                 "resources/static/vendor/underscore.min.js"
+                                                 "resources/static/vendor/react.min.js"
+                                                 "resources/static/vendor/transit-0.8.807.js"
+                                                 "resources/static/vendor/moment.min.js"]}}
 
-  :aliases {"meow" ["do" ["scss" "once"] ["minify-assets"]]}
+  :watch {
+    :rate 500
+    :watchers {
+      :scss {:watch-dirs ["resources/static/scss" "resources/static/vendor"]
+             :file-patterns [#"\.scss"]
+             :tasks ["scss once" "minify-assets"]}
+      :js   {:watch-dirs ["resources/static/js" "resources/static/vendor"]
+             :file-patterns [#"\.js"]
+             :tasks ["minify-assets"]}}}
+
+  :aliases {"build" ["do" ["scss" "once"] ["minify-assets"]]}
 
   :main get-here.core
 
