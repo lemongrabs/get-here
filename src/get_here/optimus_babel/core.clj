@@ -46,7 +46,7 @@
 (defn load-jsx-asset
   [public-dir path]
   (let [resource (existing-resource public-dir path)]
-    {:path path
+    {:path (str/replace path #"\.jsx$" ".js")
      :original-path path
      :contents (transform (slurp resource) {:path path})
      :last-modified (last-modified resource)}))

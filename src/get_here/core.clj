@@ -36,11 +36,15 @@
    (assets/load-bundles "static"
                         {"app.js" ["/js/components.jsx"]
                          "libs.js" ["/vendor/jquery.min.js"
-                                    #"/vendor/bootstrap-3.3.5-dist/js/.+\.js$"
+                                    "/vendor/bootstrap-3.3.5-dist/js/bootstrap.js"
                                     "/vendor/datepicker/bootstrap-datepicker.js"
-                                    #"/vendor/.+\.js$"]
+                                    "/vendor/moment.min.js"
+                                    "/vendor/react.min.js"
+                                    "/vendor/transit-0.8.807.js"
+                                    "/vendor/underscore.min.js"]
                          "app.css" ["/scss/styles.scss"]
-                         "libs.css" [#"/vendor/bootstrap-3.3.5-dist/css/.+\.css$"
+                         "libs.css" ["/vendor/bootstrap-3.3.5-dist/css/bootstrap.css"
+                                     "/vendor/bootstrap-3.3.5-dist/css/bootstrap-theme.css"
                                      "/vendor/datepicker/datepicker.css"]})
    (assets/load-assets "static"
                        [#"/vendor/fonts/.*$"
@@ -220,13 +224,16 @@
             "REQUEST_DENIED" {:status 500, :body {:code 3, :reason (:error-message body)}}
             {:status 500, :body {:code 4 :reason "No idea."}}))))))
 
+(defn production? [env]
+  (= "production" (env :environment)))
+
 (def app
   (-> routes
       (optimus/wrap get-assets
-                    (if (= "production" (env/env :environment))
+                    (if (production? env/env)
                       optimizations/all
                       optimizations/none)
-                    (if (= "production" (env/env :environment))
+                    (if (production? env/env)
                       strategies/serve-frozen-assets
                       strategies/serve-live-assets)
                     {:assets-dir "resources/static"})
@@ -234,11 +241,12 @@
       (wrap-restful-params)
       (wrap-restful-response)
       (params/wrap-params)
-      #_(resource/wrap-resource "static")
       (wrap-file-info)))
 
 (defn -main
   [port]
+  (when (production? env/env)
+    (println "Starting in PRODUCTION mode!"))
   (jetty/run-jetty (-> #'app
                        (reload/wrap-reload)
                        (stacktrace/wrap-stacktrace))
