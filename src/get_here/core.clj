@@ -15,7 +15,8 @@
             [clojure.data.json :as json]
             [clojure.walk :as walk]
             [get-here.ferry :as ferry]
-            [clj-time.coerce :as c])
+            [clj-time.coerce :as c]
+            [clj-time.core :as t])
   (:import [java.util Date]
            [java.time ZonedDateTime Instant ZoneId]))
 
@@ -40,10 +41,10 @@
                         {:query-params {:origin from
                                         :destination to
                                         :mode "transit"
-                                        :arrival_time (/ (.. arrive-by
-                                                             (toInstant)
-                                                             (toEpochMilli))
-                                                         1000)
+                                        :arrival_time (long (/ (.. arrive-by
+                                                                   (toInstant)
+                                                                   (toEpochMilli))
+                                                               1000))
                                         :key (google-api-key)}})
               (deref)
               (update :body json/read-str)
@@ -69,25 +70,30 @@
              (<= (.getHour arrival-instant) 20)))))
 
 (defn reformat-directions [body]
-  (let [directions (get-in body [:routes 0 :legs 0])]
+  (let [directions (get-in body [:routes 0 :legs 0])
+        route (->> (get-in directions [:steps])
+                   (filter transit-step?)
+                   (map (fn [step]
+                          {:origin      (get-in step [:transit_details :departure_stop :name])
+                           :destination (get-in step [:transit_details :arrival_stop :name])
+                           :towards     (get-in step [:transit_details :headsign])
+                           :route       (get-in step [:transit_details :line :name])
+                           :departure   (epoch-seconds->date (get-in step [:transit_details :departure_time :value]))
+                           :arrival     (epoch-seconds->date (get-in step [:transit_details :arrival_time :value]))}))
+                   (mapv (fn [step]
+                           (assoc step :peak (peak? step)))))
+        first-stop (first route)
+        last-stop (last route)]
     {:summary
-     {:origin      (get-in directions [:start_address])
-      :destination (get-in directions [:end_address])
-      :departure   (epoch-seconds->date (get-in directions [:departure_time :value]))
-      :arrival     (epoch-seconds->date (get-in directions [:arrival_time :value]))
-      :duration    (seconds->duration (get-in directions [:duration :value]))}
-     :route
-     (->> (get-in directions [:steps])
-          (filter transit-step?)
-          (map (fn [step]
-                 {:origin      (get-in step [:transit_details :departure_stop :name])
-                  :destination (get-in step [:transit_details :arrival_stop :name])
-                  :towards     (get-in step [:transit_details :headsign])
-                  :route       (get-in step [:transit_details :line :name])
-                  :departure   (epoch-seconds->date (get-in step [:transit_details :departure_time :value]))
-                  :arrival     (epoch-seconds->date (get-in step [:transit_details :arrival_time :value]))}))
-          (mapv (fn [step]
-                 (assoc step :peak (peak? step)))))}))
+     {:origin      (:origin first-stop)
+      :destination (:destination last-stop)
+      :departure   (:departure first-stop)
+      :arrival     (:arrival last-stop)
+      :duration    (-> (t/interval (c/from-date (:departure first-stop))
+                                   (c/from-date (:arrival last-stop)))
+                       (t/in-seconds)
+                       (seconds->duration))}
+     :route route}))
 
 (defroutes routes
   (GET "/" []
