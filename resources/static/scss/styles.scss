@@ -393,6 +393,7 @@ div.input {
 
 @media screen and (min-width: $breakpoint) {
   .step {
+    display: -webkit-flex;
     display: flex;
 
     &.last {
@@ -420,6 +421,7 @@ div.input {
     }
 
     p {
+      -webkit-flex: 1;
       flex: 1;
       position: relative;
     }
