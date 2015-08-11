@@ -23,7 +23,8 @@
 
   :minify-assets
     {:assets
-      {"resources/static/public/vendor.min.css" ["resources/static/vendor/"]
+      {"resources/static/public/styles.min.css" ["resources/static/vendor"
+                                                 "resources/static/css"]
        "resources/static/public/vendor.min.js"  ["resources/static/vendor/jquery.min.js"
                                                  "resources/static/vendor/bootstrap"
                                                  "resources/static/vendor/datepicker"
