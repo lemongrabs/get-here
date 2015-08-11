@@ -266,7 +266,7 @@ var FerryTimes = React.createClass({
 var ErrorMessaging = React.createClass({
   render: function() {
     if (this.props.errorType === 'ferries') {
-      return <div id="error"><p><strong>Looks like there aren&rsquo;t any ferries for that date.</strong> Try looking up a different departure date.</p></div>
+      return <div id="error"><p><strong>Looks like we don&rsquo;t have ferry info for that date.</strong> Try looking up a different departure date.</p></div>
     } else if (this.props.errorType === 'routes') {
       return <div id="error"><p><strong>Oops! Something went wrong on our end.</strong> Try looking up your desired ferry date & time again.</p></div>
     } else {
