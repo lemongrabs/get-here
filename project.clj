@@ -12,11 +12,23 @@
                  [http-kit "2.1.18"]
                  [environ "1.0.0"]
                  [org.clojure/data.json "0.2.6"]]
-  
+
+  :plugins [[lein-asset-minifier "0.2.3"]]
+
+  :minify-assets
+    {:assets
+      {"resources/static/js/vendor.min.js" ["resources/static/vendor/jquery.min.js"
+                                            "resources/static/vendor/bootstrap.min.js"
+                                            "resources/static/vendor/datepicker"
+                                            "resources/static/vendor/underscore.min.js"
+                                            "resources/static/vendor/react.min.js"
+                                            "resources/static/vendor/transit-0.8.807.js"
+                                            "resources/static/vendor/moment.min.js"]}}
+
   :main get-here.core
- 
+
   :repl-options {:init-ns get-here.core}
-  
+
   :min-lein-version "2.0.0"
   :jar-name "get-here.jar"
   :uberjar-name "get-here-standalone.jar")
