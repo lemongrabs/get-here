@@ -178,6 +178,11 @@ button.loading span {
   appearance: none;
 }
 
+.datetime-input.disabled {
+  background-color: #eee;
+  cursor: not-allowed;
+}
+
 #departure-time {
   height: 34px;
 }
@@ -364,6 +369,7 @@ div.input.departure-time::after {
 
 @media screen and (min-width: 560px) {
   .step {
+    display: -webkit-flex;
     display: flex;
   }
   .step.last {
@@ -386,6 +392,7 @@ div.input.departure-time::after {
     text-align: right;
   }
   .step p {
+    -webkit-flex: 1;
     flex: 1;
     position: relative;
   }

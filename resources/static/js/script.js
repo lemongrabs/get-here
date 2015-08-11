@@ -199,24 +199,21 @@ var FerryPicker = React.createClass({
   },
 
   onSubmit: function(e) {
-    if (this.props.errorType === 'ferries') {
-      e.preventDefault();
-      return false;
+    if (this.props.errorType !== 'ferries') {
+      this.setState({waiting: true});
+      var dateTimeInputString = $('#departure-date').val() + ' ' + $('#departure-time').val();
+      var data = transit.map([transit.keyword('arrive-by'),
+                 moment(dateTimeInputString, 'M/D/YYYY h:mm a').toDate()]);
+
+      $.ajax({'url': '/directions',
+              'type': 'POST',
+              'contentType': 'application/transit+json',
+              'data': window.transit.writer('json').write(data),
+              'headers':
+                {'accept': 'application/transit+json'},
+              'complete': this.getRoutes,
+              'error': this.onError});
     }
-
-    this.setState({waiting: true});
-    var dateTimeInputString = $('#departure-date').val() + ' ' + $('#departure-time').val();
-    var data = transit.map([transit.keyword('arrive-by'),
-               moment(dateTimeInputString, 'M/D/YYYY h:mm a').toDate()]);
-
-    $.ajax({'url': '/directions',
-            'type': 'POST',
-            'contentType': 'application/transit+json',
-            'data': window.transit.writer('json').write(data),
-            'headers':
-              {'accept': 'application/transit+json'},
-            'complete': this.getRoutes,
-            'error': this.onError});
   },
 
   getRoutes: function(response) {
@@ -259,7 +256,7 @@ var FerryTimes = React.createClass({
 
     return (
       <div className="input departure-time">
-        <select id="departure-time" className="datetime-input">{renderedFerries}]</select>
+        <select id="departure-time" className={this.props.ferries.length > 0 ? "datetime-input" : "datetime-input disabled"}>{renderedFerries}]</select>
       </div>
     )
   }
@@ -268,7 +265,7 @@ var FerryTimes = React.createClass({
 var ErrorMessaging = React.createClass({
   render: function() {
     if (this.props.errorType === 'ferries') {
-      return <div id="error"><p><strong>Looks like there aren&rsquo;t any ferries for that date.</strong> Try looking up a different departure date.</p></div>
+      return <div id="error"><p><strong>Looks like we don&rsquo;t have ferry info for that date.</strong> Try looking up a different departure date.</p></div>
     } else if (this.props.errorType === 'routes') {
       return <div id="error"><p><strong>Oops! Something went wrong on our end.</strong> Try looking up your desired ferry date & time again.</p></div>
     } else {
