@@ -10,6 +10,11 @@ You're going to need to set a `GOOGLE_API_KEY` for a project for which the "Dire
 ### Running
 
 1. Install [Leiningen](http://leiningen.org/)
-1. `lein run <PORT>`
+2. `lein run <PORT>`
+
+### Compiling assets
+
+1. `lein watch` to watch scss/js
+2. `lein build` to compile/concat/minify once
 
 ![Alt text](http://media.giphy.com/media/C06mU13FQHHhK/giphy.gif "adore delano says")
