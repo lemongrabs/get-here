@@ -288,7 +288,7 @@ var Directions = React.createClass({
         <Steps
           routeData={this.props.parsedData.get(transit.keyword('route'))} />
         <div id="callout">
-          <p>Don&rsquo;t feel like taking the train, or think this is seeming a little too complicated? As an alternative, you can hop on the new <strong>ShareGurl Shuttle</strong> and get a ride from Manhattan directly to the ferry! <a href="http://new.sharegurl.com/stores/sharegurl-shuttle/about">More info &raquo;</a></p>
+        <p>Don&rsquo;t feel like taking the train, or think this is seeming a little too complicated? As an alternative, you can fly! Our friends at Blade operate Seaplane service to the Pines on Friday and from the Pines on Sunday. <a href="https://itunes.apple.com/us/app/blade/id871972482?mt=8">Download Blade today</a>, and use referral code "bladegurl" for $100 off your first flight!</p>
         </div>
       </section>
     )
