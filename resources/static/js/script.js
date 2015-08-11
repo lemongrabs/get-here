@@ -3,31 +3,39 @@ var App = React.createClass({
     return {
       returnedFerries: null,
       returnedRoute: null,
-      errorType: '',
+      errorType: '' // can be 'ferries', 'routes', or 'server'
     };
   },
 
-  returnedFerries: function(parsedData) {
-    if (parsedData.get(transit.keyword('times')).rep.length > 0) {
-      this.setState({returnedFerries: parsedData});
-    } else {
+  returnedFerries: function(response, parsedData) {
+    if (parsedData.get(transit.keyword('times')).rep.length === 0) {
       this.setState({
         returnedFerries: null,
         returnedRoute: null,
         errorType: 'ferries'
       });
+    } else {
+      this.setState({returnedFerries: parsedData});
     }
   },
 
-  returnedRoute: function(parsedData) {
-    this.setState({returnedRoute: parsedData});
+  returnedRoute: function(response, parsedData) {
+    if (response.status === 200 && parsedData.has(transit.keyword('code'))) {
+      this.setState({
+        returnedFerries: null,
+        returnedRoute: null,
+        errorType: 'routes'
+      });
+    } else {
+      this.setState({returnedRoute: parsedData});
+    }
   },
 
   requestErrored: function() {
     this.setState({
       returnedFerries: null,
       returnedRoute: null,
-      errorType: 'routes',
+      errorType: 'server',
     });
   },
 
@@ -154,10 +162,16 @@ var FerryPicker = React.createClass({
   componentDidMount: function() {
     var resetSelections = this.props.resetSelections;
     var onDateSelect = this.onDateSelect;
+    var now = moment().subtract(1, 'days').toDate();
 
     // instantiate bootstrap date picker with callbacks
     $('#departure-date').datepicker({
       'format': 'm/d/yyyy',
+      onRender: function(date){
+        if (date.valueOf() <= now.valueOf()) {
+            return 'disabled';
+        }
+      }
     }).on('changeDate', function(e) {
       $('.datepicker').hide();
       resetSelections();
@@ -195,7 +209,7 @@ var FerryPicker = React.createClass({
 
   getFerries: function(response) {
     var parsedData = window.transit.reader('json').read(response.responseText);
-    this.props.onFerryReturn(parsedData);
+    this.props.onFerryReturn(response, parsedData);
   },
 
   onSubmit: function(e) {
@@ -219,7 +233,7 @@ var FerryPicker = React.createClass({
   getRoutes: function(response) {
     var parsedData = window.transit.reader('json').read(response.responseText);
     this.setState({waiting: false});
-    this.props.onRouteReturn(parsedData);
+    this.props.onRouteReturn(response, parsedData);
   },
 
   onError: function(response) {
@@ -267,28 +281,12 @@ var ErrorMessaging = React.createClass({
     if (this.props.errorType === 'ferries') {
       return <div id="error"><p><strong>Looks like we don&rsquo;t have ferry info for that date.</strong> Try looking up a different departure date.</p></div>
     } else if (this.props.errorType === 'routes') {
+      return <div id="error"><p><strong>We can&rsquo;t find a route that works for that day.</strong> Are you looking up a departure date in the past?</p></div>
+    } else if (this.props.errorType === 'server') {
       return <div id="error"><p><strong>Oops! Something went wrong on our end.</strong> Try looking up your desired ferry date & time again.</p></div>
     } else {
       return <div></div>;
     }
-  }
-});
-
-var Directions = React.createClass({
-  render: function() {
-    return (
-      <section id="directions">
-        <h2>Your itinerary &amp; directions</h2>
-        <Summary
-          summaryData={this.props.parsedData.get(transit.keyword('summary'))}
-          peak={this.props.parsedData.get(transit.keyword('route'))[0].get(transit.keyword('peak'))} />
-        <Steps
-          routeData={this.props.parsedData.get(transit.keyword('route'))} />
-        <div id="callout">
-        <p>Don&rsquo;t feel like taking the train, or think this is seeming a little too complicated? As an alternative, you can fly! Our friends at Blade operate Seaplane service to the Pines on Friday and from the Pines on Sunday. <a href="https://itunes.apple.com/us/app/blade/id871972482?mt=8">Download Blade today</a>, and use referral code "bladegurl" for $100 off your first flight!</p>
-        </div>
-      </section>
-    )
   }
 });
 
@@ -305,6 +303,40 @@ var createDurationString = function(startTime, endTime) {
   }
   return string;
 };
+
+var Directions = React.createClass({
+
+  render: function() {
+    var sayvilleArrival = this.props.parsedData.get(transit.keyword('route'))[1].get(transit.keyword('arrival'));
+    var ferryInputString = $('#departure-date').val() + ' ' + $('#departure-time').val();
+    var ferryDateTime = moment(ferryInputString, 'M/D/YYYY h:mm a').toDate();
+    var duration = moment.duration(moment(ferryDateTime).diff(moment(sayvilleArrival))).hours();
+
+    if (duration < 2) {
+      return (
+        <section id="directions">
+          <h2>Your itinerary &amp; directions</h2>
+          <Summary
+            summaryData={this.props.parsedData.get(transit.keyword('summary'))}
+            peak={this.props.parsedData.get(transit.keyword('route'))[0].get(transit.keyword('peak'))} />
+          <Steps
+            routeData={this.props.parsedData.get(transit.keyword('route'))} />
+          <div id="callout">
+          <p>Don&rsquo;t feel like taking the train, or think this is seeming a little too complicated? As an alternative, you can fly! Our friends at Blade operate Seaplane service to the Pines on Friday and from the Pines on Sunday. <a href="https://itunes.apple.com/us/app/blade/id871972482?mt=8">Download Blade today</a> and use referral code "bladegurl" for $100 off your first flight!</p>
+          </div>
+        </section>
+      )
+    } else {
+      return (
+        <section id="directions">
+          <h2>Your itinerary &amp; directions</h2>
+          <p>Sorry gurl, trains don&rsquo;t leave early enough for that ferry so you should probably take a car!</p>
+          <p>If you need help booking one, shoot us an email at <a href="mailto:hey@sharegurl.com">hey@sharegurl.com</a> and we can connect you with one of our preferred vendors. We recommend that the car leave Manhattan 90 minutes before your ferry&rsquo;s departure.</p>
+        </section>
+      )
+    }
+  }
+});
 
 var Summary = React.createClass({
   render: function() {
@@ -474,14 +506,15 @@ var StepDetails = React.createClass({
 var Extra = React.createClass({
   render: function() {
     return (
-      <section id="ShareGurl">
-         <h2>Have fun!</h2>
-         <p>And don&rsquo;t forget - whether you&rsquo;re a Fire Island virgin or veteran, more friends on the island means more fun for you. <a href="http://sharegurl.com">ShareGurl</a> is the only place where you can find out when your friends are going to Fire Island and share your plans too. Come play with us this summer!</p>
-         <p><center><a href="https://itunes.apple.com/us/app/sharegurl-fire-island-friends/id646752256?mt=8"><img src="images/appstore.png" alt="Download on the App Store" /></a></center></p>
+      <section id="sharegurl">
+         <h2>Looking for a place to stay in the Pines? ShareGurl can help!</h2>
+         <p>We specialize in getting gays into beds. Whether it be a room at our hotel for you and your friends, a night or two at a private guesthouse, or a full house rental, we&rsquo;ve got you. Head over to <a href="http://www.sharegurl.com/booking">sharegurl.com/booking</a> to check out what&rsquo;s available and book your bed today.</p>
       </section>
     )
   }
 })
+
+
 
 var Footer = React.createClass({
   render: function() {
