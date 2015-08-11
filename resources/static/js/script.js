@@ -322,18 +322,18 @@ var Summary = React.createClass({
       <table>
         <thead>
           <tr>
-            <td>Depart Penn</td>
+            <td className="">Depart Penn</td>
             <td>Arrive F.I.P.</td>
-            <td>Travel time</td>
-            <td>Cost</td>
+            <td className="extra">Travel time</td>
+            <td className="extra">Cost</td>
           </tr>
         </thead>
         <tbody>
           <tr>
             <td>{moment(departureTime).format('h:mm a')}</td>
             <td>{moment(arrivalTime).format('h:mm a')}</td>
-            <td>{duration}</td>
-            <td>{cost}</td>
+            <td className="extra">{duration}</td>
+            <td className="extra">{cost}</td>
           </tr>
         </tbody>
       </table>

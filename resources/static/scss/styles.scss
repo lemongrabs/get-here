@@ -2,14 +2,14 @@
 
 @import url(http://fonts.googleapis.com/css?family=Raleway:500);
 
-$purple 	   : #9b59b6;
-$purple-dark : #8e44ad;
-$blue 		   : #3498db;
-$blue-dark	 : #2980b9;
-$pink        : #ed59b7;
-$pink-dark   : #d6409f;
-
+$purple 	    : #9b59b6;
+$purple-dark  : #8e44ad;
+$blue 		    : #3498db;
+$blue-dark	  : #2980b9;
+$pink         : #ed59b7;
+$pink-dark    : #d6409f;
 $header-height: 60px;
+$breakpoint   : 560px;
 
 @mixin help-icon($background-color) {
   content: "?";
@@ -132,7 +132,7 @@ h1 {
   text-transform: uppercase;
 }
 
-@media screen and (min-width: 768px) {
+@media screen and (min-width: $breakpoint) {
   h1 {
     font-size: 24px;
     margin: 15px;
@@ -167,7 +167,7 @@ section {
   }
 }
 
-@media screen and (min-width: 768px) {
+@media screen and (min-width: $breakpoint) {
   section {
     margin: 0 auto 50px;
   }
@@ -210,12 +210,13 @@ button {
   color: transparent;
   text-shadow: 0 0 0 #333;
   cursor: pointer;
+  -webkit-appearance: none;
+     -moz-appearance: none;
+          appearance: none;
 }
 
 #departure-time {
   height: 34px;
-  position: relative;
-  top: -1px;
 }
 
 div.input {
@@ -271,6 +272,7 @@ div.input {
         border-top-left-radius: 5px;
         border-bottom-left-radius: 5px;
       }
+      &:nth-child(2),
       &:last-child {
         border-right: 1px solid #ccc;
         border-top-right-radius: 5px;
@@ -278,19 +280,35 @@ div.input {
       }
     }
   }
+  .extra {
+    display: none;
+  }
 }
 
-@media screen and (min-width: 768px) {
-  #directions table tbody {
-    font-size: 20px;
+@media screen and (min-width: $breakpoint) {
+  #directions table {
+    tbody {
+      font-size: 20px;
+      td:nth-child(2) {
+        border-right: 0px;
+        border-radius: 0px;
+      }
+    }
+    .extra {
+      display: table-cell;
+    }
   }
 }
 
 .step {
-  display: flex;
   position: relative;
   width: 100%;
   font-size: 16px;
+  margin-bottom: -8px;
+
+  &.last {
+    margin-bottom: 30px;
+  }
 
   &:not(.last)::before {
     content: '';
@@ -299,8 +317,8 @@ div.input {
     height: 100%;
     border: 2px solid $purple;
     opacity: .4;
-    left: 83px;
-    top: 12px;
+    top: 18px;
+    left: 4px;
   }
 
   &.transfer::before {
@@ -321,19 +339,10 @@ div.input {
     border-radius: 6px;
     position: absolute;
     top: 6px;
-    left: 79px;
   }
 
-  strong {
-    display: block;
-    margin-right: 30px;
-    width: 70px;
-    text-align: right;
-  }
-
-  p {
-    flex: 1;
-    position: relative;
+  > strong, > p, > small {
+    margin-left: 20px;
   }
 
   .duration {
@@ -343,7 +352,7 @@ div.input {
 
   .btn-xs.collapsed {
     .more {
-      display: inline-block;
+      display: block;
     }
     .less {
       display: none;
@@ -351,11 +360,15 @@ div.input {
   }
 
   .btn-xs {
+    display: block;
+    text-align: left;
+    padding: 0;
+
     .more {
       display: none;
     }
     .less {
-      display: inline-block;
+      display: block;
     }
   }
 
@@ -366,6 +379,54 @@ div.input {
   .collapsing, .collapse.in {
     display: block;
     font-size: 85%;
+  }
+}
+
+#steps > .step:first-child strong {
+  display: none;
+}
+
+@media screen and (min-width: $breakpoint) {
+  .step {
+    display: flex;
+
+    &.last {
+      margin-bottom: 20px;
+    }
+
+    &:not(.last)::before {
+      top: 10px;
+      left: 83px;
+    }
+
+    &::after {
+      left: 79px;
+    }
+
+    > strong, > p, > small {
+      margin-left: auto;
+    }
+
+    strong {
+      display: block;
+      margin-right: 30px;
+      width: 70px;
+      text-align: right;
+    }
+
+    p {
+      flex: 1;
+      position: relative;
+    }
+
+    .btn-xs {
+      display: inline-block;
+      padding: 0 5px;
+    }
+  }
+
+  #steps > .step:first-child strong {
+    display: block;
   }
 }
 
