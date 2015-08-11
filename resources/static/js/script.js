@@ -141,7 +141,7 @@ var Intro = React.createClass({
             <li>It might seem like everyone knows what they&rsquo;re doing, but everyone had to learn at some point. Don&rsquo;t be afraid to ask.</li>
           </ul>
         </p>
-        <p>And if you don&rsquo;t feel like taking the train, Sharegurl&rsquo;s got you covered: this summer, enjoy our new dedicated bus service that will take you directly from Manhattan to the ferry.  <a href="http://new.sharegurl.com/stores/sharegurl-shuttle/about">More info &raquo;</a></p>
+        <p>And if you don&rsquo;t feel like taking the train, ShareGurl&rsquo;s got you covered: this summer, enjoy our new dedicated bus service that will take you directly from Manhattan to the ferry.  <a href="http://new.sharegurl.com/stores/sharegurl-shuttle/about">More info &raquo;</a></p>
       </section>
     )
   }
@@ -478,7 +478,7 @@ var StepDetails = React.createClass({
 var Extra = React.createClass({
   render: function() {
     return (
-      <section id="sharegurl">
+      <section id="ShareGurl">
          <h2>Have fun!</h2>
          <p>And don&rsquo;t forget - whether you&rsquo;re a Fire Island virgin or veteran, more friends on the island means more fun for you. <a href="http://sharegurl.com">ShareGurl</a> is the only place where you can find out when your friends are going to Fire Island and share your plans too. Come play with us this summer!</p>
          <p><center><a href="https://itunes.apple.com/us/app/sharegurl-fire-island-friends/id646752256?mt=8"><img src="images/appstore.png" alt="Download on the App Store" /></a></center></p>
