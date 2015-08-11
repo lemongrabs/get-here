@@ -201,8 +201,7 @@ var FerryPicker = React.createClass({
 
   onSubmit: function(e) {
     if (this.props.errorType === 'ferries') {
-      e.preventDefault();
-      return false;
+      e.stopPropagation();
     }
 
     this.setState({waiting: true});
