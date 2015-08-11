@@ -30,8 +30,7 @@
                                             "resources/static/vendor/transit-0.8.807.js"
                                             "resources/static/vendor/moment.min.js"]}}
 
-  :hooks [leiningen.scss
-          minify-assets.plugin/hooks]
+  :aliases {"meow" ["do" ["scss" "once"] ["minify-assets"]]}
 
   :main get-here.core
 

@@ -14,7 +14,13 @@ You're going to need to set a `GOOGLE_API_KEY` for a project for which the "Dire
 
 ### Compiling assets
 
+#### Watching
+
 1. `lein compile` compiles /resources/static/scss files into /resources/static/css
 2. `lein minify-assets` concatenates + minifies
+
+#### Building
+
+1. `lein meow` compiles scss and concatenates + minifies js once
 
 ![Alt text](http://media.giphy.com/media/C06mU13FQHHhK/giphy.gif "adore delano says")
