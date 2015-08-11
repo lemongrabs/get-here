@@ -12,14 +12,39 @@
             [ring.middleware.stacktrace :as stacktrace]
             [ring.util.response :as response]
             [environ.core :as env]
+            [hiccup.core :refer [html]]
             [clojure.data.json :as json]
             [clojure.walk :as walk]
             [get-here.ferry :as ferry]
             [clj-time.coerce :as c]
-            [clj-time.core :as t])
+            [clj-time.core :as t]
+            [optimus.prime :as optimus]
+            [optimus.assets :as assets]
+            [optimus.optimizations :as optimizations]
+            [optimus.strategies :as strategies]
+            [optimus.link :as link]
+            [optimus-jsx.core]
+            [optimus-sass.core]
+            [get-here.optimus-babel.core])
   (:import [java.util Date]
            [java.time ZonedDateTime Instant ZoneId LocalDate DayOfWeek]
-           [java.time.temporal ChronoUnit]))
+           [java.time.temporal ChronoUnit]
+           [javax.script ScriptEngineManager]))
+
+(defn get-assets []
+  (concat
+   (assets/load-bundles "static"
+                        {"app.js" ["/js/components.jsx"]
+                         "libs.js" ["/vendor/jquery.min.js"
+                                    #"/vendor/bootstrap-3.3.5-dist/js/.+\.js$"
+                                    "/vendor/datepicker/bootstrap-datepicker.js"
+                                    #"/vendor/.+\.js$"]
+                         "app.css" ["/scss/styles.scss"]
+                         "libs.css" [#"/vendor/bootstrap-3.3.5-dist/css/.+\.css$"
+                                     "/vendor/datepicker/datepicker.css"]})
+   (assets/load-assets "static"
+                       [#"/vendor/fonts/.*$"
+                        #"/images/.*$"])))
 
 (defn epoch-seconds->date [epoch-seconds]
   (Date/from (Instant/ofEpochMilli (* 1000 epoch-seconds))))
@@ -116,12 +141,53 @@
       (toLocalDate)
       (isBefore (LocalDate/now (ZoneId/of "America/New_York")))))
 
+(defn index [request]
+  (let [title "ShareGurl: Getting to Fire Island"
+        description "Let us help you figure out how to get to Fire Island this summer!"
+        url "http://ferry.sharegurl.com"]
+    (html
+     [:html
+      [:head
+       [:meta {:charset "utf-8"}]
+       [:meta {:http-eqiv "X-UA-Compatible" :content "IE=edge,chrome=1"}]
+       [:meta {:name "viewport" :content "width=device-width,user-scalable=no"}]
+       
+       [:title title]
+
+       [:meta {:name "title" :content title}]
+       [:meta {:name "description" :content description}]
+       
+       [:link {:rel "shortcut icon" :href (link/file-path request "images/favicon.ico")}]
+
+       (map (fn [[k v]] [:meta {:property (str "og:" k) :content v}])
+            {:url url
+             :title title
+             :description description
+             :image (link/file-path request "images/share.png")})
+       
+       (map (fn [[k v]] [:meta {:property (str "twitter:" k) :content v}])
+            {:url url
+             :title title
+             :description description})
+
+       (map (fn [[k v]] [:meta {:name (str "twitter:" k) :value v}])
+            {:card "summary"
+             :site "@sharegurl"})
+       
+       (map (fn [url] [:link {:rel "stylesheet" :type "text/css" :href url}])
+            (link/bundle-paths request ["libs.css" "app.css"]))]
+      
+      [:body
+       [:div {:id "app-container"}]
+       (map (fn [url]
+              [:script {:src url}])
+            (link/bundle-paths request ["libs.js" "app.js"]))]])))
+
 (defroutes routes
-  (GET "/" []
-    (response/resource-response "static/index.html"))
+  (GET "/" request
+    (index request))
 
   (POST "/ferries" {{:keys [date]} :body-params :as request}
-    (println "Request: " request)
     (cond
       (nil? date)
       {:status 400, :body {:code 0, :reason "Provided map must contain the key: :date"} }
@@ -154,14 +220,21 @@
             "REQUEST_DENIED" {:status 500, :body {:code 3, :reason (:error-message body)}}
             {:status 500, :body {:code 4 :reason "No idea."}}))))))
 
-
-
 (def app
   (-> routes
+      (optimus/wrap get-assets
+                    (if (= "production" (env/env :environment))
+                      optimizations/all
+                      optimizations/none)
+                    (if (= "production" (env/env :environment))
+                      strategies/serve-frozen-assets
+                      strategies/serve-live-assets)
+                    {:assets-dir "resources/static"})
+      
       (wrap-restful-params)
       (wrap-restful-response)
       (params/wrap-params)
-      (resource/wrap-resource "static")
+      #_(resource/wrap-resource "static")
       (wrap-file-info)))
 
 (defn -main
