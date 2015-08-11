@@ -141,7 +141,6 @@ var Intro = React.createClass({
             <li>It might seem like everyone knows what they&rsquo;re doing, but everyone had to learn at some point. Don&rsquo;t be afraid to ask.</li>
           </ul>
         </p>
-        <p>And if you don&rsquo;t feel like taking the train, ShareGurl&rsquo;s got you covered: this summer, enjoy our new dedicated bus service that will take you directly from Manhattan to the ferry.  <a href="http://new.sharegurl.com/stores/sharegurl-shuttle/about">More info &raquo;</a></p>
       </section>
     )
   }
