@@ -180,7 +180,7 @@ var FerryPicker = React.createClass({
     onDateSelect();
   },
 
-  onDateSelect: function() {
+  onDateSelect: function(e) {
     var data = transit.map([transit.keyword('date'),
                moment($('#departure-date').val(), 'M/D/YYYY').toDate()]);
 
@@ -199,9 +199,13 @@ var FerryPicker = React.createClass({
     this.props.onFerryReturn(parsedData);
   },
 
-  onSubmit: function() {
-    this.setState({waiting: true});
+  onSubmit: function(e) {
+    if (this.props.errorType === 'ferries') {
+      e.preventDefault();
+      return false;
+    }
 
+    this.setState({waiting: true});
     var dateTimeInputString = $('#departure-date').val() + ' ' + $('#departure-time').val();
     var data = transit.map([transit.keyword('arrive-by'),
                moment(dateTimeInputString, 'M/D/YYYY h:mm a').toDate()]);
@@ -251,7 +255,7 @@ var FerryPicker = React.createClass({
 var FerryTimes = React.createClass({
   render: function() {
     var renderedFerries = _.map(this.props.ferries, function(ferry, i, ferries) {
-      return <option value={moment(ferry).format('h:mm a')}>{moment(ferry).format('h:mm a')}</option>;
+      return <option key={'ferry' + i} value={moment(ferry).format('h:mm a')}>{moment(ferry).format('h:mm a')}</option>;
     });
 
     return (
@@ -308,9 +312,10 @@ var createDurationString = function(startTime, endTime) {
 
 var Summary = React.createClass({
   render: function() {
+    var ferryInputString = $('#departure-date').val() + ' ' + $('#departure-time').val();
     var departureTime = this.props.summaryData.get(transit.keyword('departure'));
-    var arrivalTime = this.props.summaryData.get(transit.keyword('arrival'));
-    var duration = createDurationString(departureTime, moment(arrivalTime).add(20, 'm').toDate());
+    var arrivalTime = moment(ferryInputString, 'M/D/YYYY h:mm a').add(20, 'm').toDate();
+    var duration = createDurationString(departureTime, moment(arrivalTime).toDate());
     var cost = this.props.peak ? '$25-31' : '$23-26';
 
     return (
@@ -325,8 +330,8 @@ var Summary = React.createClass({
         </thead>
         <tbody>
           <tr>
-            <td>{moment(departureTime).format('h:mm a')} [?]</td>
-            <td>{moment(arrivalTime).format('h:mm a')} [?]</td>
+            <td>{moment(departureTime).format('h:mm a')}</td>
+            <td>{moment(arrivalTime).format('h:mm a')}</td>
             <td>{duration}</td>
             <td>{cost}</td>
           </tr>
@@ -339,7 +344,7 @@ var Summary = React.createClass({
 var Steps = React.createClass({
   render: function() {
     var routeData = this.props.routeData;
-    var ferryInputString = $('#departure-date').val() + ' ' + $('#departure-time').val(); // this will change when the time picker is replaced w/ a list of ferries
+    var ferryInputString = $('#departure-date').val() + ' ' + $('#departure-time').val();
     var ferryDateTime = moment(ferryInputString, 'M/D/YYYY h:mm a').toDate();
 
     var renderedSteps = _.map(routeData, function(step, i, steps) {
@@ -347,7 +352,7 @@ var Steps = React.createClass({
       var transferDepartureTime = isLast ? ferryDateTime : steps[i + 1].get(transit.keyword('departure'));
 
       return (
-        <div>
+        <div key={'step' + i}>
           <Transit
             departureTime={step.get(transit.keyword('departure'))}
             origin={step.get(transit.keyword('origin'))}
@@ -370,7 +375,7 @@ var Steps = React.createClass({
         <div className="step"><strong></strong> <p>Start at Penn Station.</p></div>
         {renderedSteps}
         <div className="step"><strong>{moment(ferryDateTime).format('h:mm a')}</strong> <p>Take the Sayville Ferry to the Fire Island Pines. <small><span className="duration">20 min</span></small></p></div>
-        <div className="step last"><strong>{moment(ferryDateTime).add(7, 'm').format('h:mm a')}</strong> <p>Arrive in the Pines!</p></div>
+        <div className="step last"><strong>{moment(ferryDateTime).add(20, 'm').format('h:mm a')}</strong> <p>Arrive in the Pines!</p></div>
       </div>
     );
   }
