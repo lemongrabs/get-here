@@ -18,7 +18,8 @@
             [clj-time.coerce :as c]
             [clj-time.core :as t])
   (:import [java.util Date]
-           [java.time ZonedDateTime Instant ZoneId]))
+           [java.time ZonedDateTime Instant ZoneId]
+           [java.time.temporal ChronoUnit]))
 
 (defn epoch-seconds->date [epoch-seconds]
   (Date/from (Instant/ofEpochMilli (* 1000 epoch-seconds))))
@@ -43,6 +44,7 @@
                                         :mode "transit"
                                         :arrival_time (long (/ (.. arrive-by
                                                                    (toInstant)
+                                                                   (minus 12 ChronoUnit/MINUTES)
                                                                    (toEpochMilli))
                                                                1000))
                                         :key (google-api-key)}})
@@ -123,7 +125,7 @@
       :else
       (let [{:keys [status body] :as response} @(google-transit-directions
                                                  "Pennsylvania Station, New York, NY"
-                                                 "Sayville Ferry Services, 41 River Road, Sayville, NY 11782"
+                                                 "40°44'25.4\"N 73°05'11.4\"W"
                                                  arrive-by)]
         (condp = (:status body)
           "OK"             {:status 200, :body (reformat-directions body)}
