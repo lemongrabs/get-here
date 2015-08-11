@@ -13,7 +13,12 @@
                  [environ "1.0.0"]
                  [org.clojure/data.json "0.2.6"]]
 
-  :plugins [[lein-asset-minifier "0.2.3"]]
+  :plugins [[lein-haml-sass "0.2.7-SNAPSHOT"]
+            [lein-asset-minifier "0.2.3"]]
+
+  :scss {:src "resources/static/scss"
+         :output-directory "resources/static/css"
+         :output-extension "css"}
 
   :minify-assets
     {:assets
@@ -24,6 +29,9 @@
                                             "resources/static/vendor/react.min.js"
                                             "resources/static/vendor/transit-0.8.807.js"
                                             "resources/static/vendor/moment.min.js"]}}
+
+  :hooks [leiningen.scss
+          minify-assets.plugin/hooks]
 
   :main get-here.core
 
