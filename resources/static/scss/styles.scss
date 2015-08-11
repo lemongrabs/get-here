@@ -213,6 +213,11 @@ button {
   -webkit-appearance: none;
      -moz-appearance: none;
           appearance: none;
+
+  &.disabled {
+    background-color: #eee;
+    cursor: not-allowed;
+  }
 }
 
 #departure-time {

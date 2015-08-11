@@ -178,6 +178,11 @@ button.loading span {
   appearance: none;
 }
 
+.datetime-input.disabled {
+  background-color: #eee;
+  cursor: not-allowed;
+}
+
 #departure-time {
   height: 34px;
 }

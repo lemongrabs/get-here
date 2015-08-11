@@ -260,7 +260,7 @@ var FerryTimes = React.createClass({
 
     return (
       <div className="input departure-time">
-        <select id="departure-time" className="datetime-input">{renderedFerries}]</select>
+        <select id="departure-time" className={this.props.ferries.length > 0 ? "datetime-input" : "datetime-input disabled"}>{renderedFerries}]</select>
       </div>
     )
   }
