@@ -24,14 +24,15 @@
   :minify-assets
     {:assets
       {"resources/static/public/app.min.css" ["resources/static/vendor"
-                                                 "resources/static/css"]
-       "resources/static/public/vendor.min.js"  ["resources/static/vendor/jquery.min.js"
-                                                 "resources/static/vendor/bootstrap"
-                                                 "resources/static/vendor/datepicker"
-                                                 "resources/static/vendor/underscore.min.js"
-                                                 "resources/static/vendor/react.min.js"
-                                                 "resources/static/vendor/transit-0.8.807.js"
-                                                 "resources/static/vendor/moment.min.js"]}}
+                                              "resources/static/css"]
+       "resources/static/public/app.min.js"  ["resources/static/vendor/jquery.min.js"
+                                              "resources/static/vendor/bootstrap"
+                                              "resources/static/vendor/datepicker"
+                                              "resources/static/vendor/underscore.min.js"
+                                              "resources/static/vendor/react.min.js"
+                                              "resources/static/vendor/transit-0.8.807.js"
+                                              "resources/static/vendor/moment.min.js"
+                                              "resources/static/js"]}}
 
   :watch {
     :rate 500
