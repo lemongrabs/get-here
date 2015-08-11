@@ -200,23 +200,21 @@ var FerryPicker = React.createClass({
   },
 
   onSubmit: function(e) {
-    if (this.props.errorType === 'ferries') {
-      e.stopPropagation();
+    if (this.props.errorType !== 'ferries') {
+      this.setState({waiting: true});
+      var dateTimeInputString = $('#departure-date').val() + ' ' + $('#departure-time').val();
+      var data = transit.map([transit.keyword('arrive-by'),
+                 moment(dateTimeInputString, 'M/D/YYYY h:mm a').toDate()]);
+
+      $.ajax({'url': '/directions',
+              'type': 'POST',
+              'contentType': 'application/transit+json',
+              'data': window.transit.writer('json').write(data),
+              'headers':
+                {'accept': 'application/transit+json'},
+              'complete': this.getRoutes,
+              'error': this.onError});
     }
-
-    this.setState({waiting: true});
-    var dateTimeInputString = $('#departure-date').val() + ' ' + $('#departure-time').val();
-    var data = transit.map([transit.keyword('arrive-by'),
-               moment(dateTimeInputString, 'M/D/YYYY h:mm a').toDate()]);
-
-    $.ajax({'url': '/directions',
-            'type': 'POST',
-            'contentType': 'application/transit+json',
-            'data': window.transit.writer('json').write(data),
-            'headers':
-              {'accept': 'application/transit+json'},
-            'complete': this.getRoutes,
-            'error': this.onError});
   },
 
   getRoutes: function(response) {
