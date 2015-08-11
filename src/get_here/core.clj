@@ -18,7 +18,7 @@
             [clj-time.coerce :as c]
             [clj-time.core :as t])
   (:import [java.util Date]
-           [java.time ZonedDateTime Instant ZoneId DayOfWeek]
+           [java.time ZonedDateTime Instant ZoneId LocalDate DayOfWeek]
            [java.time.temporal ChronoUnit]))
 
 (defn epoch-seconds->date [epoch-seconds]
@@ -108,6 +108,14 @@
                        (seconds->duration))}
      :route route}))
 
+(defn date-before-today? [date]
+  {:pre [(instance? java.util.Date date)]}
+  (.. date
+      (toInstant)
+      (atZone (ZoneId/of "America/New_York"))
+      (toLocalDate)
+      (isBefore (LocalDate/now (ZoneId/of "America/New_York")))))
+
 (defroutes routes
   (GET "/" []
     (response/resource-response "static/index.html"))
@@ -134,9 +142,7 @@
       {:status 400, :body {:code 1, :reason "Value provided for :arrive-by must be a Date."}}
 
       :else
-      (if (.. arrive-by
-              (toInstant)
-              (isBefore (Instant/now)))
+      (if (date-before-today? arrive-by)
         {:status 200, :body {:code 2 :reason "No route available"}}
         (let [{:keys [status body] :as response} @(google-transit-directions
                                                    "Pennsylvania Station, New York, NY"
