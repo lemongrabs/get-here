@@ -1,0 +1,13 @@
+{
+  "name": "get-here",
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/lemongrabs/get-here"
+  },
+  "devDependencies": {
+    "babel-cli": "^6.7.5",
+    "babel-preset-react": "^6.5.0"
+  },
+  "license": "UNLICENSED",
+  "private": true
+}
