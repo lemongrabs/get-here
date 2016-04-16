@@ -125,19 +125,19 @@
     (cond
       (nil? date)
       {:status 400, :body {:code 0, :reason "Provided map must contain the key: :date"} }
-      
+
       (not (instance? Date date))
       {:status 400, :body {:code 1, :reason "Value provided for :date must be a Date."}}
 
       :else
       {:status 200 :body {:times (ferry/times-for (.toLocalDate (c/from-date date)))}}))
-  
-  
+
+
   (POST "/directions" {{:keys [arrive-by]} :body-params}
     (cond
       (nil? arrive-by)
       {:status 400, :body {:code 0, :reason "Provided map must contain the key: :arrive-by"} }
-      
+
       (not (instance? Date arrive-by))
       {:status 400, :body {:code 1, :reason "Value provided for :arrive-by must be a Date."}}
 
@@ -146,13 +146,13 @@
         {:status 200, :body {:code 2 :reason "No route available"}}
         (let [{:keys [status body] :as response} @(google-transit-directions
                                                    "Pennsylvania Station, New York, NY"
-                                                   "40°44'25.4\"N 73°05'11.4\"W"
+                                                   "Lakeland Ave & Depot Street, Sayville, NY 11782"
                                                    arrive-by)]
           (condp = (:status body)
             "OK"             {:status 200, :body (reformat-directions body)}
             "ZERO_RESULTS"   {:status 200, :body {:code 2 :reason "No route available"}}
             "REQUEST_DENIED" {:status 500, :body {:code 3, :reason (:error-message body)}}
-            {:status 500, :body {:code 4 :reason "No idea."}}))))))
+            {:status 500, :body {:code 4 :reason response}}))))))
 
 
 
