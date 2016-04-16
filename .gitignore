@@ -9,3 +9,5 @@ pom.xml.asc
 /.nrepl-port
 /.sass-cache
 *.css.map
+/.envrc
+/node_modules

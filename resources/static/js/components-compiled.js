@@ -1,9 +1,7 @@
-'use strict';
-
 var App = React.createClass({
   displayName: 'App',
 
-  getInitialState: function getInitialState() {
+  getInitialState: function () {
     return {
       returnedFerries: null,
       returnedRoute: null,
@@ -11,7 +9,7 @@ var App = React.createClass({
     };
   },
 
-  returnedFerries: function returnedFerries(response, parsedData) {
+  returnedFerries: function (response, parsedData) {
     if (parsedData.get(transit.keyword('times')).rep.length === 0) {
       this.setState({
         returnedFerries: null,
@@ -23,7 +21,7 @@ var App = React.createClass({
     }
   },
 
-  returnedRoute: function returnedRoute(response, parsedData) {
+  returnedRoute: function (response, parsedData) {
     if (response.status === 200 && parsedData.has(transit.keyword('code'))) {
       this.setState({
         returnedFerries: null,
@@ -35,7 +33,7 @@ var App = React.createClass({
     }
   },
 
-  requestErrored: function requestErrored() {
+  requestErrored: function () {
     this.setState({
       returnedFerries: null,
       returnedRoute: null,
@@ -43,7 +41,7 @@ var App = React.createClass({
     });
   },
 
-  resetSelections: function resetSelections() {
+  resetSelections: function () {
     this.setState({
       returnedFerries: null,
       returnedRoute: null,
@@ -51,7 +49,7 @@ var App = React.createClass({
     });
   },
 
-  render: function render() {
+  render: function () {
     if (this.state.returnedRoute) {
       return React.createElement(
         'div',
@@ -92,7 +90,7 @@ var App = React.createClass({
 var Header = React.createClass({
   displayName: 'Header',
 
-  setupHideShow: function setupHideShow() {
+  setupHideShow: function () {
     // https://medium.com/design-startups/hide-header-on-scroll-down-show-on-scroll-up-67bbaae9a78c
 
     var scrolling = false;
@@ -130,7 +128,7 @@ var Header = React.createClass({
     }, 250);
   },
 
-  render: function render() {
+  render: function () {
     this.setupHideShow();
 
     return React.createElement(
@@ -157,7 +155,7 @@ var Header = React.createClass({
 var Intro = React.createClass({
   displayName: 'Intro',
 
-  render: function render() {
+  render: function () {
     return React.createElement(
       'section',
       { id: 'intro' },
@@ -192,11 +190,11 @@ var Intro = React.createClass({
 var FerryPicker = React.createClass({
   displayName: 'FerryPicker',
 
-  getInitialState: function getInitialState() {
+  getInitialState: function () {
     return { waiting: false };
   },
 
-  componentDidMount: function componentDidMount() {
+  componentDidMount: function () {
     var resetSelections = this.props.resetSelections;
     var onDateSelect = this.onDateSelect;
     var now = moment().subtract(1, 'days').toDate();
@@ -204,7 +202,7 @@ var FerryPicker = React.createClass({
     // instantiate bootstrap date picker with callbacks
     $('#departure-date').datepicker({
       'format': 'm/d/yyyy',
-      onRender: function onRender(date) {
+      onRender: function (date) {
         if (date.valueOf() <= now.valueOf()) {
           return 'disabled';
         }
@@ -230,7 +228,7 @@ var FerryPicker = React.createClass({
     onDateSelect();
   },
 
-  onDateSelect: function onDateSelect(e) {
+  onDateSelect: function (e) {
     var data = transit.map([transit.keyword('date'), moment($('#departure-date').val(), 'M/D/YYYY').toDate()]);
 
     $.ajax({ 'url': '/ferries',
@@ -242,12 +240,12 @@ var FerryPicker = React.createClass({
       'error': this.onError });
   },
 
-  getFerries: function getFerries(response) {
+  getFerries: function (response) {
     var parsedData = window.transit.reader('json').read(response.responseText);
     this.props.onFerryReturn(response, parsedData);
   },
 
-  onSubmit: function onSubmit(e) {
+  onSubmit: function (e) {
     if (this.props.errorType !== 'ferries') {
       this.setState({ waiting: true });
       var dateTimeInputString = $('#departure-date').val() + ' ' + $('#departure-time').val();
@@ -263,18 +261,18 @@ var FerryPicker = React.createClass({
     }
   },
 
-  getRoutes: function getRoutes(response) {
+  getRoutes: function (response) {
     var parsedData = window.transit.reader('json').read(response.responseText);
     this.setState({ waiting: false });
     this.props.onRouteReturn(response, parsedData);
   },
 
-  onError: function onError(response) {
+  onError: function (response) {
     this.setState({ waiting: false });
     this.props.onRequestError();
   },
 
-  render: function render() {
+  render: function () {
     var defaultDate = moment().format('M/D/YYYY');
     var ferries = this.props.ferries ? this.props.ferries.get(transit.keyword('times')).rep : [];
     var buttonClassString = this.state.waiting ? 'loading' : '';
@@ -314,7 +312,7 @@ var FerryPicker = React.createClass({
 var FerryTimes = React.createClass({
   displayName: 'FerryTimes',
 
-  render: function render() {
+  render: function () {
     var renderedFerries = _.map(this.props.ferries, function (ferry, i, ferries) {
       return React.createElement(
         'option',
@@ -339,7 +337,7 @@ var FerryTimes = React.createClass({
 var ErrorMessaging = React.createClass({
   displayName: 'ErrorMessaging',
 
-  render: function render() {
+  render: function () {
     if (this.props.errorType === 'ferries') {
       return React.createElement(
         'div',
@@ -391,7 +389,7 @@ var ErrorMessaging = React.createClass({
   }
 });
 
-var createDurationString = function createDurationString(startTime, endTime) {
+var createDurationString = function (startTime, endTime) {
   var duration = moment.duration(moment(endTime).diff(moment(startTime)));
   var hours = duration.hours();
   var minutes = duration.minutes();
@@ -408,7 +406,8 @@ var createDurationString = function createDurationString(startTime, endTime) {
 var Directions = React.createClass({
   displayName: 'Directions',
 
-  render: function render() {
+
+  render: function () {
     var sayvilleArrival = this.props.parsedData.get(transit.keyword('route'))[1].get(transit.keyword('arrival'));
     var ferryInputString = $('#departure-date').val() + ' ' + $('#departure-time').val();
     var ferryDateTime = moment(ferryInputString, 'M/D/YYYY h:mm a').toDate();
@@ -427,22 +426,7 @@ var Directions = React.createClass({
           summaryData: this.props.parsedData.get(transit.keyword('summary')),
           peak: this.props.parsedData.get(transit.keyword('route'))[0].get(transit.keyword('peak')) }),
         React.createElement(Steps, {
-          routeData: this.props.parsedData.get(transit.keyword('route')) }),
-        React.createElement(
-          'div',
-          { id: 'callout' },
-          React.createElement(
-            'p',
-            null,
-            'Don’t feel like taking the train, or think this is seeming a little too complicated? As an alternative, you can fly! Our friends at Blade operate Seaplane service to the Pines on Friday and from the Pines on Sunday. ',
-            React.createElement(
-              'a',
-              { href: 'https://itunes.apple.com/us/app/blade/id871972482?mt=8' },
-              'Download Blade today'
-            ),
-            ' and use referral code "bladegurl" for $100 off your first flight!'
-          )
-        )
+          routeData: this.props.parsedData.get(transit.keyword('route')) })
       );
     } else {
       return React.createElement(
@@ -477,7 +461,7 @@ var Directions = React.createClass({
 var Summary = React.createClass({
   displayName: 'Summary',
 
-  render: function render() {
+  render: function () {
     var ferryInputString = $('#departure-date').val() + ' ' + $('#departure-time').val();
     var departureTime = this.props.summaryData.get(transit.keyword('departure'));
     var arrivalTime = moment(ferryInputString, 'M/D/YYYY h:mm a').add(20, 'm').toDate();
@@ -550,7 +534,7 @@ var Summary = React.createClass({
 var Steps = React.createClass({
   displayName: 'Steps',
 
-  render: function render() {
+  render: function () {
     var routeData = this.props.routeData;
     var ferryInputString = $('#departure-date').val() + ' ' + $('#departure-time').val();
     var ferryDateTime = moment(ferryInputString, 'M/D/YYYY h:mm a').toDate();
@@ -639,7 +623,7 @@ var Steps = React.createClass({
 var Transit = React.createClass({
   displayName: 'Transit',
 
-  render: function render() {
+  render: function () {
     var peak = '';
     if (this.props.origin === 'Penn Station') {
       peak = React.createElement(
@@ -686,7 +670,7 @@ var Transit = React.createClass({
 var Transfer = React.createClass({
   displayName: 'Transfer',
 
-  render: function render() {
+  render: function () {
     return React.createElement(
       'div',
       { className: 'step transfer' },
@@ -723,7 +707,7 @@ var Transfer = React.createClass({
 var StepDetails = React.createClass({
   displayName: 'StepDetails',
 
-  render: function render() {
+  render: function () {
     var id = this.props.whichStep.replace(' ', '-').toLowerCase();
     var details = null;
 
@@ -817,7 +801,7 @@ var StepDetails = React.createClass({
 var Extra = React.createClass({
   displayName: 'Extra',
 
-  render: function render() {
+  render: function () {
     return React.createElement(
       'section',
       { id: 'sharegurl' },
@@ -844,7 +828,7 @@ var Extra = React.createClass({
 var Footer = React.createClass({
   displayName: 'Footer',
 
-  render: function render() {
+  render: function () {
     return React.createElement(
       'footer',
       null,
