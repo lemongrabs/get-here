@@ -816,8 +816,8 @@ var Extra = React.createClass({
         'We specialize in getting gays into beds. Whether it be a room at our hotel for you and your friends, a night or two at a private guesthouse, or a full house rental, we’ve got you. Head over to ',
         React.createElement(
           'a',
-          { href: 'http://www.sharegurl.com/booking' },
-          'sharegurl.com/booking'
+          { href: 'http://www.sharegurl.com/lodging' },
+          'sharegurl.com/lodging'
         ),
         ' to check out what’s available and book your bed today.'
       )

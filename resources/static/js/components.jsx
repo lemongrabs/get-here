@@ -505,7 +505,7 @@ var Extra = React.createClass({
     return (
       <section id="sharegurl">
          <h2>Looking for a place to stay in the Pines? ShareGurl can help!</h2>
-         <p>We specialize in getting gays into beds. Whether it be a room at our hotel for you and your friends, a night or two at a private guesthouse, or a full house rental, we&rsquo;ve got you. Head over to <a href="http://www.sharegurl.com/booking">sharegurl.com/booking</a> to check out what&rsquo;s available and book your bed today.</p>
+         <p>We specialize in getting gays into beds. Whether it be a room at our hotel for you and your friends, a night or two at a private guesthouse, or a full house rental, we&rsquo;ve got you. Head over to <a href="http://www.sharegurl.com/lodging">sharegurl.com/lodging</a> to check out what&rsquo;s available and book your bed today.</p>
       </section>
     )
   }
