@@ -191,7 +191,7 @@ var FerryPicker = React.createClass({
   displayName: 'FerryPicker',
 
   getInitialState: function () {
-    return { waiting: false };
+    return { waiting: false, origin: "penn" };
   },
 
   componentDidMount: function () {
@@ -249,7 +249,8 @@ var FerryPicker = React.createClass({
     if (this.props.errorType !== 'ferries') {
       this.setState({ waiting: true });
       var dateTimeInputString = $('#departure-date').val() + ' ' + $('#departure-time').val();
-      var data = transit.map([transit.keyword('arrive-by'), moment(dateTimeInputString, 'M/D/YYYY h:mm a').toDate()]);
+      var originString = this.state.origin;
+      var data = transit.map([transit.keyword('arrive-by'), moment(dateTimeInputString, 'M/D/YYYY h:mm a').toDate(), transit.keyword('from'), transit.keyword(originString)]);
 
       $.ajax({ 'url': '/directions',
         'type': 'POST',
@@ -272,14 +273,40 @@ var FerryPicker = React.createClass({
     this.props.onRequestError();
   },
 
+  handleOriginChange: function (event) {
+    this.setState({ origin: event.target.value });
+  },
+
   render: function () {
     var defaultDate = moment().format('M/D/YYYY');
     var ferries = this.props.ferries ? this.props.ferries.get(transit.keyword('times')).rep : [];
+    var origin = this.state.origin;
     var buttonClassString = this.state.waiting ? 'loading' : '';
 
     return React.createElement(
       'section',
       { id: 'departure' },
+      React.createElement(
+        'h2',
+        null,
+        'Which station do you want to leave from?'
+      ),
+      React.createElement(
+        'div',
+        { className: 'content' },
+        React.createElement(
+          'label',
+          { 'for': 'penn' },
+          React.createElement('input', { type: 'radio', name: 'origin', id: 'penn', value: 'penn', checked: origin === "penn", onChange: this.handleOriginChange }),
+          'Pennsylvania Station'
+        ),
+        React.createElement(
+          'label',
+          { 'for': 'atlantic' },
+          React.createElement('input', { type: 'radio', name: 'origin', id: 'atlantic', value: 'atlantic', checked: origin === "atlantic", onChange: this.handleOriginChange }),
+          'Atlantic Terminal'
+        )
+      ),
       React.createElement(
         'h2',
         null,
@@ -468,6 +495,13 @@ var Summary = React.createClass({
     var duration = createDurationString(departureTime, moment(arrivalTime).toDate());
     var cost = this.props.peak ? '$25-31' : '$23-26';
 
+    var shortNames = {
+      "Pennsylvania Station": "Penn",
+      "Atlantic Terminal": "Atlantic"
+    };
+    var originString = this.props.summaryData.get(transit.keyword('origin'));
+    var origin = shortNames[originString];
+
     return React.createElement(
       'table',
       null,
@@ -480,7 +514,8 @@ var Summary = React.createClass({
           React.createElement(
             'td',
             { className: '' },
-            'Depart Penn'
+            'Depart ',
+            origin
           ),
           React.createElement(
             'td',
@@ -538,6 +573,7 @@ var Steps = React.createClass({
     var routeData = this.props.routeData;
     var ferryInputString = $('#departure-date').val() + ' ' + $('#departure-time').val();
     var ferryDateTime = moment(ferryInputString, 'M/D/YYYY h:mm a').toDate();
+    var origin = routeData[0].get(transit.keyword('origin'));
 
     var renderedSteps = _.map(routeData, function (step, i, steps) {
       var isLast = i === steps.length - 1;
@@ -573,7 +609,9 @@ var Steps = React.createClass({
         React.createElement(
           'p',
           null,
-          'Start at Penn Station.'
+          'Start at ',
+          origin,
+          '.'
         )
       ),
       renderedSteps,
