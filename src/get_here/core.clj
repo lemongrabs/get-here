@@ -172,6 +172,5 @@
   :stop (.stop *web-server*))
 
 (defn -main
-  [port]
-  (mount.core/start)
-  (runtime/add-shutdown-hook ::stop-system #(mount/stop)))
+  []
+  (mount.core/start))
