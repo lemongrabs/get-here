@@ -16,7 +16,8 @@
             [clojure.walk :as walk]
             [get-here.ferry :as ferry]
             [clj-time.coerce :as c]
-            [clj-time.core :as t])
+            [clj-time.core :as t]
+            [mount.core :refer [defstate]])
   (:import [java.util Date]
            [java.time ZonedDateTime Instant ZoneId LocalDate DayOfWeek]
            [java.time.temporal ChronoUnit]))
@@ -118,43 +119,41 @@
 
 (defroutes routes
   (GET "/" []
-    (response/resource-response "static/index.html"))
+       (response/resource-response "static/index.html"))
 
   (POST "/ferries" {{:keys [date]} :body-params :as request}
-    (println "Request: " request)
-    (cond
-      (nil? date)
-      {:status 400, :body {:code 0, :reason "Provided map must contain the key: :date"} }
+        (println "Request: " request)
+        (cond
+          (nil? date)
+          {:status 400, :body {:code 0, :reason "Provided map must contain the key: :date"} }
 
-      (not (instance? Date date))
-      {:status 400, :body {:code 1, :reason "Value provided for :date must be a Date."}}
+          (not (instance? Date date))
+          {:status 400, :body {:code 1, :reason "Value provided for :date must be a Date."}}
 
-      :else
-      {:status 200 :body {:times (ferry/times-for (.toLocalDate (c/from-date date)))}}))
+          :else
+          {:status 200 :body {:times (ferry/times-for (.toLocalDate (c/from-date date)))}}))
 
 
   (POST "/directions" {{:keys [arrive-by]} :body-params}
-    (cond
-      (nil? arrive-by)
-      {:status 400, :body {:code 0, :reason "Provided map must contain the key: :arrive-by"} }
+        (cond
+          (nil? arrive-by)
+          {:status 400, :body {:code 0, :reason "Provided map must contain the key: :arrive-by"} }
 
-      (not (instance? Date arrive-by))
-      {:status 400, :body {:code 1, :reason "Value provided for :arrive-by must be a Date."}}
+          (not (instance? Date arrive-by))
+          {:status 400, :body {:code 1, :reason "Value provided for :arrive-by must be a Date."}}
 
-      :else
-      (if (date-before-today? arrive-by)
-        {:status 200, :body {:code 2 :reason "No route available"}}
-        (let [{:keys [status body] :as response} @(google-transit-directions
-                                                   "Pennsylvania Station, New York, NY"
-                                                   "Lakeland Ave & Depot Street, Sayville, NY 11782"
-                                                   arrive-by)]
-          (condp = (:status body)
-            "OK"             {:status 200, :body (reformat-directions body)}
-            "ZERO_RESULTS"   {:status 200, :body {:code 2 :reason "No route available"}}
-            "REQUEST_DENIED" {:status 500, :body {:code 3, :reason (:error-message body)}}
-            {:status 500, :body {:code 4 :reason response}}))))))
-
-
+          :else
+          (if (date-before-today? arrive-by)
+            {:status 200, :body {:code 2 :reason "No route available"}}
+            (let [{:keys [status body] :as response} @(google-transit-directions
+                                                       "Pennsylvania Station, New York, NY"
+                                                       "Lakeland Ave & Depot Street, Sayville, NY 11782"
+                                                       arrive-by)]
+              (condp = (:status body)
+                "OK"             {:status 200, :body (reformat-directions body)}
+                "ZERO_RESULTS"   {:status 200, :body {:code 2 :reason "No route available"}}
+                "REQUEST_DENIED" {:status 500, :body {:code 3, :reason (:error-message body)}}
+                {:status 500, :body {:code 4 :reason response}}))))))
 
 (def app
   (-> routes
@@ -164,9 +163,14 @@
       (resource/wrap-resource "static")
       (wrap-file-info)))
 
+(defstate ^:dynamic *web-server*
+  :start (jetty/run-jetty (-> #'app
+                              (reload/wrap-reload)
+                              (stacktrace/wrap-stacktrace))
+                          {:port (Integer/parseInt (:port environ.core/env))
+                           :join? (Boolean/parseBoolean (:join environ.core/env))})
+  :stop (.stop *web-server*))
+
 (defn -main
-  [port]
-  (jetty/run-jetty (-> #'app
-                       (reload/wrap-reload)
-                       (stacktrace/wrap-stacktrace))
-                   {:port (Integer/parseInt port)}))
+  []
+  (mount.core/start))
