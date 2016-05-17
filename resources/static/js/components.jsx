@@ -246,6 +246,7 @@ var FerryPicker = React.createClass({
 
   handleOriginChange: function(event) {
     this.setState({origin: event.target.value});
+    console.log("Origin change!");
   },
 
   render: function() {
@@ -258,15 +259,11 @@ var FerryPicker = React.createClass({
       <section id="departure">
         <h2>Which station do you want to leave from?</h2>
         <div className="content">
-          <label for="penn">
-            <input type="radio" name="origin" id="penn" value="penn" checked={origin === "penn"} onChange={this.handleOriginChange}/>
-            Pennsylvania Station
-          </label>
+          <input type="radio" name="origin" id="penn" value="penn" checked={origin === "penn"} onChange={this.handleOriginChange}/>
+          <label htmlFor="penn">Pennsylvania Station</label>
 
-          <label for="atlantic">
-            <input type="radio" name="origin" id="atlantic" value="atlantic" checked={origin === "atlantic"} onChange={this.handleOriginChange}/>
-            Atlantic Terminal
-          </label>
+          <input type="radio" name="origin" id="atlantic" value="atlantic" checked={origin === "atlantic"} onChange={this.handleOriginChange}/>
+          <label htmlFor="atlantic">Atlantic Terminal</label>
         </div>
         <h2>Which ferry do you want to catch?</h2>
         <div className="content">
@@ -290,7 +287,7 @@ var FerryTimes = React.createClass({
 
     return (
       <div className="input departure-time">
-        <select id="departure-time" className={this.props.ferries.length > 0 ? "datetime-input" : "datetime-input disabled"}>{renderedFerries}]</select>
+        <select id="departure-time" className={this.props.ferries.length > 0 ? "datetime-input" : "datetime-input disabled"}>{renderedFerries}</select>
       </div>
     )
   }
@@ -337,10 +334,10 @@ var Directions = React.createClass({
         <section id="directions">
           <h2>Your itinerary &amp; directions</h2>
           <Summary
-             summaryData={this.props.parsedData.get(transit.keyword('summary'))}
-             peak={this.props.parsedData.get(transit.keyword('route'))[0].get(transit.keyword('peak'))} />
+              summaryData={this.props.parsedData.get(transit.keyword('summary'))}
+              peak={this.props.parsedData.get(transit.keyword('route'))[0].get(transit.keyword('peak'))} />
           <Steps
-             routeData={this.props.parsedData.get(transit.keyword('route'))} />
+              routeData={this.props.parsedData.get(transit.keyword('route'))} />
         </section>
       )
     } else {
@@ -408,18 +405,18 @@ var Steps = React.createClass({
       return (
         <div key={'step' + i}>
           <Transit
-             departureTime={step.get(transit.keyword('departure'))}
-             origin={step.get(transit.keyword('origin'))}
-             destination={step.get(transit.keyword('destination'))}
-             route={step.get(transit.keyword('route'))}
-             peak={step.get(transit.keyword('peak'))}
-             duration={createDurationString(step.get(transit.keyword('departure')), step.get(transit.keyword('arrival')))} />
+              departureTime={step.get(transit.keyword('departure'))}
+              origin={step.get(transit.keyword('origin'))}
+              destination={step.get(transit.keyword('destination'))}
+              route={step.get(transit.keyword('route'))}
+              peak={step.get(transit.keyword('peak'))}
+              duration={createDurationString(step.get(transit.keyword('departure')), step.get(transit.keyword('arrival')))} />
           <Transfer
-             arrivalTime={step.get(transit.keyword('arrival'))}
-             location={step.get(transit.keyword('destination'))}
-             connection={isLast ? 'Sayville Ferry' : 'train to ' + steps[i + 1].get(transit.keyword('destination'))}
-             transferType={isLast ? 'ferry-transfer' : 'train-transfer'}
-             duration={createDurationString(step.get(transit.keyword('arrival')), transferDepartureTime)} />
+              arrivalTime={step.get(transit.keyword('arrival'))}
+              location={step.get(transit.keyword('destination'))}
+              connection={isLast ? 'Sayville Ferry' : 'train to ' + steps[i + 1].get(transit.keyword('destination'))}
+              transferType={isLast ? 'ferry-transfer' : 'train-transfer'}
+              duration={createDurationString(step.get(transit.keyword('arrival')), transferDepartureTime)} />
         </div>
       );
     });
@@ -543,16 +540,16 @@ var Extra = React.createClass({
 
 
 var Footer = React.createClass({
-    render: function() {
-        return (
-            <footer>
-              This site brought to you with love by <a href="http://twitter.com/zaneshelby">Zane Shelby</a> &amp; <a href="http://twitter.com/oldwestaction">Anh-Thu Huynh</a> for <a href="http://sharegurl.com" className="home">ShareGurl</a>
-            </footer>
-        )
-    }
+  render: function() {
+    return (
+      <footer>
+        This site brought to you with love by <a href="http://twitter.com/zaneshelby">Zane Shelby</a> &amp; <a href="http://twitter.com/oldwestaction">Anh-Thu Huynh</a> for <a href="http://sharegurl.com" className="home">ShareGurl</a>
+      </footer>
+    )
+  }
 });
 
 React.render(
-    <App />,
-    document.getElementById('app-container')
+  <App />,
+  document.getElementById('app-container')
 );

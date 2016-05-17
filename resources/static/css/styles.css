@@ -316,6 +316,21 @@ div.input {
     margin-bottom: 0;
     font-size: 14px; }
 
+input[type='radio'] {
+  display: none; }
+
+label {
+  color: #ccc;
+  padding: 5px;
+  margin-right: 10px;
+  border: 1px solid #ccc;
+  border-radius: 5px; }
+
+input[type='radio']:checked + label {
+  font-weight: bold;
+  color: #8e44ad;
+  border-color: #8e44ad; }
+
 /* footer */
 footer {
   background-color: #ed59b7;

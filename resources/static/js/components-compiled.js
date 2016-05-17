@@ -275,6 +275,7 @@ var FerryPicker = React.createClass({
 
   handleOriginChange: function (event) {
     this.setState({ origin: event.target.value });
+    console.log("Origin change!");
   },
 
   render: function () {
@@ -294,16 +295,16 @@ var FerryPicker = React.createClass({
       React.createElement(
         'div',
         { className: 'content' },
+        React.createElement('input', { type: 'radio', name: 'origin', id: 'penn', value: 'penn', checked: origin === "penn", onChange: this.handleOriginChange }),
         React.createElement(
           'label',
-          { 'for': 'penn' },
-          React.createElement('input', { type: 'radio', name: 'origin', id: 'penn', value: 'penn', checked: origin === "penn", onChange: this.handleOriginChange }),
+          { htmlFor: 'penn' },
           'Pennsylvania Station'
         ),
+        React.createElement('input', { type: 'radio', name: 'origin', id: 'atlantic', value: 'atlantic', checked: origin === "atlantic", onChange: this.handleOriginChange }),
         React.createElement(
           'label',
-          { 'for': 'atlantic' },
-          React.createElement('input', { type: 'radio', name: 'origin', id: 'atlantic', value: 'atlantic', checked: origin === "atlantic", onChange: this.handleOriginChange }),
+          { htmlFor: 'atlantic' },
           'Atlantic Terminal'
         )
       ),
@@ -354,8 +355,7 @@ var FerryTimes = React.createClass({
       React.createElement(
         'select',
         { id: 'departure-time', className: this.props.ferries.length > 0 ? "datetime-input" : "datetime-input disabled" },
-        renderedFerries,
-        ']'
+        renderedFerries
       )
     );
   }
