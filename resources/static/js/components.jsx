@@ -258,7 +258,7 @@ var FerryPicker = React.createClass({
         <h2>Which station do you want to leave from?</h2>
         <div className="content">
           <input type="radio" name="origin" id="penn" value="penn" checked={origin === "penn"} onChange={this.handleOriginChange}/>
-          <label htmlFor="penn">Pennsylvania Station</label>
+          <label htmlFor="penn">Penn Station</label>
 
           <input type="radio" name="origin" id="atlantic" value="atlantic" checked={origin === "atlantic"} onChange={this.handleOriginChange}/>
           <label htmlFor="atlantic">Atlantic Terminal</label>
