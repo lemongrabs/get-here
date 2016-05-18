@@ -463,6 +463,25 @@ div.input {
   }
 }
 
+input[type='radio'] {
+  display: none;
+}
+
+label {
+  color: #ccc;
+  padding: 5px;
+  margin-right: 10px;
+  border: 1px solid #ccc;
+  border-radius: 5px;
+  cursor: pointer;
+}
+
+input[type='radio']:checked + label {
+  font-weight: bold;
+  color: $purple-dark;
+  border-color: $purple-dark;
+  background-color: rgba(155, 88, 182, 0.4);
+}
 
 /* footer */
 footer {
