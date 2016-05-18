@@ -297,7 +297,7 @@ var FerryPicker = React.createClass({
         React.createElement(
           'label',
           { htmlFor: 'penn' },
-          'Pennsylvania Station'
+          'Penn Station'
         ),
         React.createElement('input', { type: 'radio', name: 'origin', id: 'atlantic', value: 'atlantic', checked: origin === "atlantic", onChange: this.handleOriginChange }),
         React.createElement(
