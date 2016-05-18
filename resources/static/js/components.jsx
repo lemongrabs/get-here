@@ -174,7 +174,6 @@ var FerryPicker = React.createClass({
       }
     }).on('changeDate', function(e) {
       $('.datepicker').hide();
-      resetSelections();
       onDateSelect();
     });
 
@@ -246,7 +245,6 @@ var FerryPicker = React.createClass({
 
   handleOriginChange: function(event) {
     this.setState({origin: event.target.value});
-    console.log("Origin change!");
   },
 
   render: function() {

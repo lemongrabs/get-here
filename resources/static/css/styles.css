@@ -324,12 +324,14 @@ label {
   padding: 5px;
   margin-right: 10px;
   border: 1px solid #ccc;
-  border-radius: 5px; }
+  border-radius: 5px;
+  cursor: pointer; }
 
 input[type='radio']:checked + label {
   font-weight: bold;
   color: #8e44ad;
-  border-color: #8e44ad; }
+  border-color: #8e44ad;
+  background-color: rgba(155, 88, 182, 0.4); }
 
 /* footer */
 footer {
