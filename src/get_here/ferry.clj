@@ -73,7 +73,7 @@
      "5:30 PM"
      "7:30 PM"]
 
-    pr/thursday
+    pr/thursday?
     "9:15 PM"
 
     pr/friday?
