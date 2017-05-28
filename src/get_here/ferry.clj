@@ -49,7 +49,8 @@
 (def not-on (comp complement on))
 
 (def times
-  {(within? [2017 5 25] [2017 6 22])
+  {;; Early Summer 2017
+   (within? [2017 5 25] [2017 6 22])
    {(every-pred pr/monday?
                 (not-on 2017 5 29))
     ["5:40 AM"
@@ -121,7 +122,91 @@
      "6:20 PM"
      "7:20 PM"
      "8:20 PM"
-     "9:20 PM"]}})
+     "9:20 PM"]}
+
+   ;; Summer 2017
+   (within? [2017 6 23] [2017 9 5])
+   {(every-pred (some-fn pr/monday?
+                         (on 2017 7 5))
+                (not-on 2017 7 3)
+                (not-on 2017 9 4))
+    [{(not-on 2017 9 4) "5:45 AM"}
+     "7:00 AM"
+     "8:00 AM"
+     "9:30 AM"
+     "11:30 AM"
+     "1:30 PM"
+     "3:30 PM"
+     "5:30 PM"
+     "7:30 PM"
+     "9:15 PM"]
+
+    (on 2017 9 5)
+    "5:45 AM"
+
+    (every-pred (some-fn pr/tuesday? pr/wednesday?)
+                (not-on 2017 7 4))
+    ["7:00 AM"
+     "9:30 AM"
+     "11:30 AM"
+     "1:30 PM"
+     "3:30 PM"
+     "5:30 PM"
+     "7:30 PM"
+     "9:15 PM"]
+
+    pr/thursday?
+    ["7:00 AM"
+     "8:00 AM"
+     "9:30 AM"
+     "11:30 AM"
+     "1:30 PM"
+     "3:30 PM"
+     "5:30 PM"
+     "7:30 PM"
+     "8:30 PM"
+     "10:15 PM"]
+
+    pr/friday?
+    ["7:00 AM"
+     "8:00 AM"
+     "9:30 AM"
+     "11:30 AM"
+     "1:30 PM"
+     "3:30 PM"
+     "4:30 PM"
+     "5:30 PM"
+     "6:30 PM"
+     "7:00 PM"
+     "7:30 PM"
+     "8:00 PM"
+     "8:30 PM"
+     "9:30 PM"
+     "10:30 PM"]
+
+    pr/saturday?
+    "12:15 AM"
+
+    (some-fn pr/saturday?
+             pr/sunday?
+             (on 2017 7 3)
+             (on 2017 7 4)
+             (on 2017 9 4))
+    ["8:00 AM"
+     "9:25 AM"
+     "10:25 AM"
+     "11:25 AM"
+     "12:25 PM"
+     "1:25 PM"
+     "2:20 PM"
+     "3:20 PM"
+     "4:20 PM"
+     "5:20 PM"
+     "6:20 PM"
+     "7:20 PM"
+     "8:20 PM"
+     "9:20 PM"
+     "10:30 PM"]}})
 
 (defn parse-ferry-time
   [time-s]
